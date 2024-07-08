@@ -15,6 +15,8 @@
 #include <config.h>
 #include <material.h>
 
+#include "local_nh.h"
+
 // Define an operation that takes two tensors $ \mathbf{A} $ and
 // $ \mathbf{B} $ such that their outer-product
 // $ \mathbf{A} \bar{\otimes} \mathbf{B} \Rightarrow C_{ijkl} = A_{il} B_{jk}
@@ -99,7 +101,8 @@ operator|=(MFMask &f1, MFMask f2)
   return f1;
 }
 
-inline constexpr bool operator&(MFMask f1, MFMask f2)
+inline constexpr bool
+operator&(MFMask f1, MFMask f2)
 {
   return (static_cast<std::underlying_type<MFMask>::type>(f1) &
           static_cast<std::underlying_type<MFMask>::type>(f2)) != 0;
@@ -288,7 +291,9 @@ private:
     scalar,
     tensor2,
     tensor4,
-    tensor4_ns
+    tensor4_ns,
+    tensor4_AD,
+    invalid
   };
   MFCaching mf_caching;
 
@@ -310,7 +315,8 @@ NeoHookOperator<dim, fe_degree, n_q_points_1d, number>::memory_consumption()
 
   // matrix-free data:
   if (mf_caching == MFCaching::tensor4_ns ||
-      mf_caching == MFCaching::scalar_referential)
+      mf_caching == MFCaching::scalar_referential ||
+      mf_caching == MFCaching::none)
     {
       res += data_reference->memory_consumption();
     }
@@ -333,7 +339,7 @@ template <int dim, int fe_degree, int n_q_points_1d, typename number>
 NeoHookOperator<dim, fe_degree, n_q_points_1d, number>::NeoHookOperator()
   : Subscriptor()
   , diagonal_is_available(false)
-  , mf_caching(MFCaching::none)
+  , mf_caching(MFCaching::invalid)
 {
   Tensor<2, dim, VectorizedArray<number>> I;
   for (unsigned int i = 0; i < dim; ++i)
@@ -435,9 +441,13 @@ NeoHookOperator<dim, fe_degree, n_q_points_1d, number>::initialize(
       mf_caching = MFCaching::tensor4_ns;
       cached_tensor4_ns.reinit(n_cells, phi.n_q_points);
     }
-  else
+  else if (caching == "none")
     {
       mf_caching = MFCaching::none;
+    }
+  else
+    {
+      mf_caching = MFCaching::invalid;
       AssertThrow(false, ExcMessage("Unknown caching"));
     }
 }
@@ -448,6 +458,9 @@ template <int dim, int fe_degree, int n_q_points_1d, typename number>
 void
 NeoHookOperator<dim, fe_degree, n_q_points_1d, number>::cache()
 {
+  if (mf_caching == MFCaching::none)
+    return;
+
   const unsigned int n_cells = data_reference->n_cell_batches();
 
   FEEvaluation<dim, fe_degree, n_q_points_1d, dim, number> phi_reference(
@@ -717,7 +730,7 @@ NeoHookOperator<dim, fe_degree, n_q_points_1d, number>::local_apply_cell(
   const std::pair<unsigned int, unsigned int> &     cell_range) const
 {
   FEEvaluation<dim, fe_degree, n_q_points_1d, dim, number> phi_current(
-    *data_current);
+    mf_caching == MFCaching::none ? *data_reference : *data_current);
   FEEvaluation<dim, fe_degree, n_q_points_1d, dim, number> phi_reference(
     *data_reference);
 
@@ -749,7 +762,7 @@ NeoHookOperator<dim, fe_degree, n_q_points_1d, number>::local_apply_cell(
               phi_current.read_dof_values(src);
             }
 
-          if (mf_caching == MFCaching::scalar)
+          if (mf_caching == MFCaching::scalar || mf_caching == MFCaching::none)
             {
               phi_reference.reinit(cell);
               phi_reference.read_dof_values_plain(*displacement);
@@ -798,7 +811,7 @@ NeoHookOperator<dim, fe_degree, n_q_points_1d, number>::local_diagonal_cell(
   const VectorizedArray<number> zero = make_vectorized_array<number>(0.);
 
   FEEvaluation<dim, fe_degree, n_q_points_1d, dim, number> phi_current(
-    *data_current);
+    mf_caching == MFCaching::none ? *data_reference : *data_current);
   FEEvaluation<dim, fe_degree, n_q_points_1d, dim, number> phi_reference(
     *data_reference);
 
@@ -981,7 +994,7 @@ NeoHookOperator<dim, fe_degree, n_q_points_1d, number>::do_operation_on_cell(
         }
       else
         {
-          if (mf_caching == MFCaching::scalar)
+          if (mf_caching == MFCaching::scalar || mf_caching == MFCaching::none)
             phi_reference.evaluate(EvaluationFlags::gradients);
 
           phi_current.evaluate(EvaluationFlags::gradients);
@@ -1252,6 +1265,22 @@ NeoHookOperator<dim, fe_degree, n_q_points_1d, number>::do_operation_on_cell(
               phi_current.submit_gradient((jc_part + geo) * inv_det_F, q);
             }
         }
+
+      else if (cell_mat->formulation == 1 && mf_caching == MFCaching::none)
+        {
+          //  Automatically generated code
+          // AceGEN
+          // FIXME!!!
+          for (unsigned int q = 0; q < phi_current.n_q_points; ++q)
+            {
+              Tensor<2, dim, NumberType> gradientOut;
+              NeoHookean<dim>::template Tangent_local<NumberType>(
+                phi_reference.get_gradient(q),
+                phi_current.get_gradient(q),
+                gradientOut);
+              phi_current.submit_gradient(gradientOut, q);
+            }
+        }
       else if (cell_mat->formulation == 1 &&
                mf_caching == MFCaching::scalar_referential)
         // the least amount of cache and the most calculations
@@ -1462,7 +1491,8 @@ NeoHookOperator<dim, fe_degree, n_q_points_1d, number>::do_operation_on_cell(
       // need to submit something to avoid debug asserts
       const unsigned int q = 0;
       if (mf_caching == MFCaching::tensor4_ns ||
-          mf_caching == MFCaching::scalar_referential)
+          mf_caching == MFCaching::scalar_referential ||
+          mf_caching == MFCaching::none)
         {
           phi_reference.submit_gradient(Tensor<2, dim, NumberType>(), q);
         }

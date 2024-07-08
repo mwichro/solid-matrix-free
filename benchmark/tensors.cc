@@ -13,6 +13,7 @@
 
 #include <deal.II/physics/elasticity/standard_tensors.h>
 
+#include <iostream>
 // we need to include our config to see if we build with LIKWID:
 #include <config.h>
 // we may as well include version:

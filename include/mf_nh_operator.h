@@ -16,6 +16,8 @@
 #include <material.h>
 
 #include "local_nh.h"
+#include "mf_nh_cached.h"
+#include "mf_nh_operator.h"
 
 // Define an operation that takes two tensors $ \mathbf{A} $ and
 // $ \mathbf{B} $ such that their outer-product
@@ -281,6 +283,8 @@ private:
   Table<2, Tensor<2, dim, VectorizedArray<number>>> cached_tensor2;
   Table<2, SymmetricTensor<4, dim, VectorizedArray<number>>> cached_tensor4;
   Table<2, Tensor<4, dim, VectorizedArray<number>>>          cached_tensor4_ns;
+  Table<3, VectorizedArray<number>>                          cached_acegen;
+
 
   bool diagonal_is_available;
 
@@ -292,7 +296,7 @@ private:
     tensor2,
     tensor4,
     tensor4_ns,
-    tensor4_AD,
+    acegen_cached,
     invalid
   };
   MFCaching mf_caching;
@@ -307,16 +311,16 @@ std::size_t
 NeoHookOperator<dim, fe_degree, n_q_points_1d, number>::memory_consumption()
   const
 {
-  auto res = cached_scalar.memory_consumption() +
-             cached_second_scalar.memory_consumption() +
-             cached_tensor2.memory_consumption() +
-             cached_tensor4.memory_consumption() +
-             cached_tensor4_ns.memory_consumption();
+  auto res =
+    cached_scalar.memory_consumption() +
+    cached_second_scalar.memory_consumption() +
+    cached_tensor2.memory_consumption() + cached_tensor4.memory_consumption() +
+    cached_tensor4_ns.memory_consumption() + cached_acegen.memory_consumption();
 
   // matrix-free data:
   if (mf_caching == MFCaching::tensor4_ns ||
       mf_caching == MFCaching::scalar_referential ||
-      mf_caching == MFCaching::none)
+      mf_caching == MFCaching::none || mf_caching == MFCaching::acegen_cached)
     {
       res += data_reference->memory_consumption();
     }
@@ -440,6 +444,13 @@ NeoHookOperator<dim, fe_degree, n_q_points_1d, number>::initialize(
     {
       mf_caching = MFCaching::tensor4_ns;
       cached_tensor4_ns.reinit(n_cells, phi.n_q_points);
+    }
+  else if (caching == "acegen_cached")
+    {
+      mf_caching = MFCaching::acegen_cached;
+      cached_acegen.reinit(n_cells,
+                           phi.n_q_points,
+                           NeoHookeanCached<dim>::n_cached);
     }
   else if (caching == "none")
     {
@@ -593,6 +604,20 @@ NeoHookOperator<dim, fe_degree, n_q_points_1d, number>::cache()
                       F_inv_t_F_inv +
                     cell_mat->mu * IxI_ikjl;
                 }
+              else if (mf_caching == MFCaching::acegen_cached)
+                {
+                  ArrayView<VectorizedArray<number>> acegen_cache_view(
+                    &cached_acegen(cell, q, 0),
+                    NeoHookeanCached<dim>::n_cached);
+                  Tensor<1, dim, VectorizedArray<number>> dummy1;
+                  Tensor<2, dim, VectorizedArray<number>> dummy2;
+
+                  NeoHookeanCached<dim>::template cache_local<
+                    VectorizedArray<number>>(phi_reference.get_gradient(q),
+                                             dummy1,
+                                             dummy2,
+                                             acegen_cache_view);
+                }
               else
                 {
                   AssertThrow(false, ExcMessage("Unknown caching"));
@@ -730,7 +755,9 @@ NeoHookOperator<dim, fe_degree, n_q_points_1d, number>::local_apply_cell(
   const std::pair<unsigned int, unsigned int> &     cell_range) const
 {
   FEEvaluation<dim, fe_degree, n_q_points_1d, dim, number> phi_current(
-    mf_caching == MFCaching::none ? *data_reference : *data_current);
+    mf_caching == MFCaching::none || mf_caching == MFCaching::acegen_cached ?
+      *data_reference :
+      *data_current);
   FEEvaluation<dim, fe_degree, n_q_points_1d, dim, number> phi_reference(
     *data_reference);
 
@@ -762,7 +789,9 @@ NeoHookOperator<dim, fe_degree, n_q_points_1d, number>::local_apply_cell(
               phi_current.read_dof_values(src);
             }
 
-          if (mf_caching == MFCaching::scalar || mf_caching == MFCaching::none)
+          if (mf_caching == MFCaching::scalar ||
+              mf_caching == MFCaching::none ||
+              mf_caching == MFCaching::acegen_cached)
             {
               phi_reference.reinit(cell);
               phi_reference.read_dof_values_plain(*displacement);
@@ -811,7 +840,9 @@ NeoHookOperator<dim, fe_degree, n_q_points_1d, number>::local_diagonal_cell(
   const VectorizedArray<number> zero = make_vectorized_array<number>(0.);
 
   FEEvaluation<dim, fe_degree, n_q_points_1d, dim, number> phi_current(
-    mf_caching == MFCaching::none ? *data_reference : *data_current);
+    mf_caching == MFCaching::none || mf_caching == MFCaching::acegen_cached ?
+      *data_reference :
+      *data_current);
   FEEvaluation<dim, fe_degree, n_q_points_1d, dim, number> phi_reference(
     *data_reference);
 
@@ -994,7 +1025,9 @@ NeoHookOperator<dim, fe_degree, n_q_points_1d, number>::do_operation_on_cell(
         }
       else
         {
-          if (mf_caching == MFCaching::scalar || mf_caching == MFCaching::none)
+          if (mf_caching == MFCaching::scalar ||
+              mf_caching == MFCaching::none ||
+              mf_caching == MFCaching::acegen_cached)
             phi_reference.evaluate(EvaluationFlags::gradients);
 
           phi_current.evaluate(EvaluationFlags::gradients);
@@ -1277,6 +1310,27 @@ NeoHookOperator<dim, fe_degree, n_q_points_1d, number>::do_operation_on_cell(
               NeoHookean<dim>::template Tangent_local<NumberType>(
                 phi_reference.get_gradient(q),
                 phi_current.get_gradient(q),
+                gradientOut);
+              phi_current.submit_gradient(gradientOut, q);
+            }
+        }
+
+      else if (cell_mat->formulation == 1 &&
+               mf_caching == MFCaching::acegen_cached)
+        {
+          //  Automatically generated code
+          // AceGEN
+          // FIXME!!!
+          for (unsigned int q = 0; q < phi_current.n_q_points; ++q)
+            {
+              const ArrayView<const VectorizedArray<number>> acegen_cache_view(
+                &cached_acegen(cell, q, 0), NeoHookeanCached<dim>::n_cached);
+
+              Tensor<2, dim, NumberType> gradientOut;
+              NeoHookeanCached<dim>::template Tangent_local<NumberType>(
+                phi_reference.get_gradient(q),
+                phi_current.get_gradient(q),
+                acegen_cache_view,
                 gradientOut);
               phi_current.submit_gradient(gradientOut, q);
             }

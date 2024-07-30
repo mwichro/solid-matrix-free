@@ -487,3 +487,6 @@ build-release/tests/CMakeFiles/tests.mf_neo_hook_operator_form1.release.test.dir
 build-release/tests/CMakeFiles/tests.mf_neo_hook_operator_form1.release.test.dir/compiler_depend.ts
 build-release/tests/CMakeFiles/tests.mf_neo_hook_operator_form1.release.test.dir/DependInfo.cmake
 build-release/tests/CMakeFiles/tests.mf_neo_hook_operator_form1.release.test.dir/progress.make
+build-release/CMakeFiles/main.dir/compiler_depend.internal
+build-release/CMakeFiles/mf_elasticity.dir/compiler_depend.internal
+build-release/benchmark/CMakeFiles/tensors.dir/compiler_depend.internal

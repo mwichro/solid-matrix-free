@@ -165,9 +165,9 @@ if args.likwid:
 if out_dir and not out_dir.endswith('/'):
     out_dir = out_dir + '/'
 
-print 'base parameter file: {0}'.format(base_prm)
-print 'output directory:    {0}'.format(out_dir)
-print 'mpi comand:\n{0}'.format(mpicmd)
+print ('base parameter file: {0}'.format(base_prm))
+print ('output directory:    {0}'.format(out_dir))
+print ('mpi comand:\n{0}'.format(mpicmd))
 
 filenames = []
 
@@ -176,7 +176,7 @@ for pqrd in poly_quad_ref_dim:
     for s in solvers:
         name = base_name + '_{6}d_p{0}q{1}r{2}_{3}_{4}_{5}'.format(pqrd[0],pqrd[1],pqrd[2],s[0],s[1],s[2],pqrd[3])
         fname = name + '.prm'
-        print '{0}'.format(fname)
+        print ('{0}'.format(fname))
         fout = open(fname, 'w')
         fout.write(parameter_file.format(
             base_prm,
@@ -203,7 +203,7 @@ if not args.likwid:
       for s in [('MF_CG', 'gmg', 'tensor4')]:
           name = '__' + base_name + '_{6}d_p{0}q{1}r{2}_{3}_{4}_{5}'.format(pqrd[0],pqrd[1],pqrd[2],s[0],s[1],s[2],pqrd[3])
           fname = name + '.prm'
-          print '{0}'.format(fname)
+          print ('{0}'.format(fname))
           fout = open(fname, 'w')
           fout.write(parameter_file.format(
               base_prm,

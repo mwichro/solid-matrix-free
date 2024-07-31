@@ -9,11 +9,11 @@ parser = argparse.ArgumentParser(
     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument('--base_prm', metavar='base_prm', default='holes.prm',
                     help='Base parameter file to use')
-parser.add_argument('--dir', metavar='dir', default='Emmy_RRZE',
+parser.add_argument('--dir', metavar='dir', default='Simserv06',
                     help='Subdirectory to store calculations')
-parser.add_argument('--prefix', metavar='prefix', default='/home/woody/iwtm/iwtm108/deal.ii-mf-elasticity/_build/',
+parser.add_argument('--prefix', metavar='prefix', default='/scratch/mwichro/large-strain-matrix-free/build/',
                     help='Build directory with executable `main`')
-parser.add_argument('--calc', metavar='calc', default='/home/woody/iwtm/iwtm108/deal.ii-mf-elasticity/Calculations/',
+parser.add_argument('--calc', metavar='calc', default='/scratch/mwichro/large-strain-matrix-free/Calculations-simserv06',
                     help='Directory with calculations where .prm files will be generated and `base_prm` is located')
 parser.add_argument('--mpirun', metavar='mpirun', default='mpirun -np 20',
                     help='mpi run command with cores')
@@ -25,14 +25,14 @@ args = parser.parse_args()
 
 # FE degree, quadrature, global refinement, dim
 poly_quad_ref_dim = [
-    (1,2,7,2),
-    (2,3,6,2),
-    (3,4,5,2),
-    (4,5,5,2),
-    (5,6,5,2),
-    (6,7,4,2),
-    (7,8,4,2),
-    (8,9,4,2),
+    # (1,2,7,2),
+    # (2,3,6,2),
+    # (3,4,5,2),
+    # (4,5,5,2),
+    # (5,6,5,2),
+    # (6,7,4,2),
+    # (7,8,4,2),
+    # (8,9,4,2),
     (1,2,4,3),
     (2,3,3,3),
     (3,4,2,3),
@@ -40,40 +40,56 @@ poly_quad_ref_dim = [
 ]
 
 poly_quad_ref_dim_likwid = [
-    (2,3,6,2),
-    (4,5,5,2),
-    (6,7,4,2),
+    # (2,3,6,2),
+    # (4,5,5,2),
+    # (6,7,4,2),
     (2,3,3,3),
     (4,5,2,3),
 ]
 
 # Solvers (type, preconditioner and caching)
+# solvers = [
+#     ('MF_CG', 'gmg', 'scalar'),
+#     ('MF_CG', 'gmg', 'scalar_referential'),
+#     ('MF_CG', 'gmg', 'tensor2'),
+#     ('MF_CG', 'gmg', 'tensor4'),
+#     ('MF_CG', 'gmg', 'tensor4_ns'),
+#     ('CG',    'amg', 'scalar'),
+# ]
+
 solvers = [
     ('MF_CG', 'gmg', 'scalar'),
-    ('MF_CG', 'gmg', 'scalar_referential'),
+    ('MF_CG', 'gmg', 'none'),
     ('MF_CG', 'gmg', 'tensor2'),
-    ('MF_CG', 'gmg', 'tensor4'),
-    ('MF_CG', 'gmg', 'tensor4_ns'),
-    ('CG',    'amg', 'scalar'),
+    ('MF_CG', 'gmg', 'acegen_cached'),
+    ('MF_CG', 'gmg', 'tensor4_ns')
 ]
+
+# solvers_likwid = [
+#     ('MF_CG', 'gmg', 'scalar'),
+#     ('MF_CG', 'gmg', 'scalar_referential'),
+#     ('MF_CG', 'gmg', 'tensor2'),
+#     ('MF_CG', 'gmg', 'tensor4'),
+#     ('MF_CG', 'gmg', 'tensor4_ns'),
+#     ('CG',    'amg', 'scalar'),
+# ]
 
 solvers_likwid = [
     ('MF_CG', 'gmg', 'scalar'),
-    ('MF_CG', 'gmg', 'scalar_referential'),
+    ('MF_CG', 'gmg', 'none'),
     ('MF_CG', 'gmg', 'tensor2'),
-    ('MF_CG', 'gmg', 'tensor4'),
-    ('MF_CG', 'gmg', 'tensor4_ns'),
-    ('CG',    'amg', 'scalar'),
+    ('MF_CG', 'gmg', 'acegen_cached'),
+    ('MF_CG', 'gmg', 'tensor4_ns')
 ]
 
-if args.single:
-  solvers_likwid = [
-    ('MF_CG', 'gmg', 'scalar'),
-    ('MF_CG', 'gmg', 'scalar_referential'),
-    ('MF_CG', 'gmg', 'tensor2'),
-    ('MF_CG', 'gmg', 'tensor4'),
-    ('MF_CG', 'gmg', 'tensor4_ns'),
-  ]
+# if args.single:
+#   solvers_likwid = [
+#     ('MF_CG', 'gmg', 'scalar'),
+#     ('MF_CG', 'gmg', 'scalar_referential'),
+#     ('MF_CG', 'gmg', 'tensor2'),
+#     ('MF_CG', 'gmg', 'tensor4'),
+#     ('MF_CG', 'gmg', 'tensor4_ns'),
+#   ]
 
 
 

@@ -35,6 +35,8 @@
   BOOST_PP_TUPLE_TO_LIST( \
     8, ((1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8), (8, 9)))
 
+// #define MF_DQ BOOST_PP_TUPLE_TO_LIST(1, ((2, 3)))
+
 #define DOIF2(R, L)                                                      \
   else if ((degree == GET_D(L)) && (n_q_points == GET_Q(L)))             \
   {                                                                      \

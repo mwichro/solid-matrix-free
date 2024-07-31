@@ -16,8 +16,8 @@
 #include <material.h>
 
 #include "local_nh.h"
-#include "mf_nh_cached.h"
-#include "mf_nh_operator.h"
+// #include "mf_nh_cached.h"
+#include "mf_nh_cached_v2.h"
 
 // Define an operation that takes two tensors $ \mathbf{A} $ and
 // $ \mathbf{B} $ such that their outer-product
@@ -616,7 +616,9 @@ NeoHookOperator<dim, fe_degree, n_q_points_1d, number>::cache()
                     VectorizedArray<number>>(phi_reference.get_gradient(q),
                                              dummy1,
                                              dummy2,
-                                             acegen_cache_view);
+                                             acegen_cache_view,
+                                             cell_mat->mu,
+                                             cell_mat->lambda);
                 }
               else
                 {
@@ -1310,7 +1312,9 @@ NeoHookOperator<dim, fe_degree, n_q_points_1d, number>::do_operation_on_cell(
               NeoHookean<dim>::template Tangent_local<NumberType>(
                 phi_reference.get_gradient(q),
                 phi_current.get_gradient(q),
-                gradientOut);
+                gradientOut,
+                mu,
+                lambda);
               phi_current.submit_gradient(gradientOut, q);
             }
         }

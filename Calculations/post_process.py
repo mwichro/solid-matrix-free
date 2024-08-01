@@ -9,6 +9,7 @@ import fileinput
 import matplotlib.ticker
 from matplotlib.ticker import MaxNLocator
 from matplotlib.ticker import FormatStrFormatter
+import signal
 
 # https://stackoverflow.com/questions/42656139/set-scientific-notation-with-fixed-exponent-and-significant-digits-for-multiple
 class OOMFormatter(matplotlib.ticker.ScalarFormatter):
@@ -35,8 +36,8 @@ prefix = args.prefix if args.prefix.startswith('/') else os.path.join(os.getcwd(
 
 files = [os.path.join(prefix, k,'timings.txt') for k in os.listdir(prefix) if os.path.isfile(os.path.join(prefix, k,'timings.txt'))]
 
-print 'Gather data from {0}'.format(prefix)
-print 'found {0} files'.format(len(files))
+print ('Gather data from {0}'.format(prefix))
+print ('found {0} files'.format(len(files)))
 
 pattern = r'[+\-]?(?:[0-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+)?'
 
@@ -106,7 +107,7 @@ for f in files:
             cg_iterations = int(re.findall(pattern,line)[0])
 
         if start_line in line:
-            print 'dim={0} p={1} q={2} cells={3} dofs={4} tr_memory={5} mf_memory={6} cg_it={7} file={8}'.format(dim, p, q, cells, dofs, tr_memory, mf_memory, cg_iterations, f)
+            print ('dim={0} p={1} q={2} cells={3} dofs={4} tr_memory={5} mf_memory={6} cg_it={7} file={8}'.format(dim, p, q, cells, dofs, tr_memory, mf_memory, cg_iterations, f))
             ready = True
 
         if ready:
@@ -119,7 +120,7 @@ for f in files:
                     # do time of a single vmult and the reset -- total time
                     n = int(nums[0]) if 'vmult (' in s else int(1)  # how many times
                     t = float(nums[1]) # total time
-                    print '  {0} {1} {2} {3}'.format(s,idx,n,t)
+                    print ('  {0} {1} {2} {3}'.format(s,idx,n,t))
                     timing[idx] = t / n
 
     # finish processing the file, put the data
@@ -303,10 +304,13 @@ plt.xlabel('polynomial degree')
 plt.ylabel('vmult wall time (s) / DoF')
 leg = plt.legend(loc='best', ncol=1)
 ax.set_aspect(1.0/ax.get_data_ratio()*ratio)
-plt.savefig(fig_prefix + 'timing2d.pdf', format='pdf', bbox_inches = 'tight')
+#plt.savefig(fig_prefix + 'timing2d.pdf', format='pdf', bbox_inches = 'tight')
+# plt.show()
+
 
 # clear
 plt.clf()
+exit()
 
 ax = plt.figure().gca()
 ax.yaxis.set_major_formatter(OOMFormatter(timing_exp, "%1.1f"))

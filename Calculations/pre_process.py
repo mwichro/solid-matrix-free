@@ -13,7 +13,7 @@ parser.add_argument('--dir', metavar='dir', default='Simserv06',
                     help='Subdirectory to store calculations')
 parser.add_argument('--prefix', metavar='prefix', default='/scratch/mwichro/large-strain-matrix-free/build/',
                     help='Build directory with executable `main`')
-parser.add_argument('--calc', metavar='calc', default='/scratch/mwichro/large-strain-matrix-free/Calculations-simserv06',
+parser.add_argument('--calc', metavar='calc', default='/scratch/mwichro/large-strain-matrix-free/Calculations',
                     help='Directory with calculations where .prm files will be generated and `base_prm` is located')
 parser.add_argument('--mpirun', metavar='mpirun', default='mpirun -np 20',
                     help='mpi run command with cores')
@@ -25,14 +25,14 @@ args = parser.parse_args()
 
 # FE degree, quadrature, global refinement, dim
 poly_quad_ref_dim = [
-    # (1,2,7,2),
-    # (2,3,6,2),
-    # (3,4,5,2),
-    # (4,5,5,2),
-    # (5,6,5,2),
-    # (6,7,4,2),
-    # (7,8,4,2),
-    # (8,9,4,2),
+    (1,2,7,2),
+    (2,3,6,2),
+    (3,4,5,2),
+    (4,5,5,2),
+    (5,6,5,2),
+    (6,7,4,2),
+    (7,8,4,2),
+    (8,9,4,2),
     (1,2,4,3),
     (2,3,3,3),
     (3,4,2,3),
@@ -59,6 +59,7 @@ poly_quad_ref_dim_likwid = [
 
 solvers = [
     ('MF_CG', 'gmg', 'scalar'),
+    ('MF_CG', 'gmg', 'scalar_referential'),
     ('MF_CG', 'gmg', 'none'),
     ('MF_CG', 'gmg', 'tensor2'),
     ('MF_CG', 'gmg', 'acegen_cached'),
@@ -76,10 +77,11 @@ solvers = [
 
 solvers_likwid = [
     ('MF_CG', 'gmg', 'scalar'),
+    ('MF_CG', 'gmg', 'scalar_referential'),
     ('MF_CG', 'gmg', 'none'),
     ('MF_CG', 'gmg', 'tensor2'),
     ('MF_CG', 'gmg', 'acegen_cached'),
-    ('MF_CG', 'gmg', 'tensor4_ns')
+    ('MF_CG', 'gmg', 'tensor4_ns'),
 ]
 
 # if args.single:

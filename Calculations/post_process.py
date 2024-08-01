@@ -59,13 +59,19 @@ sections = [
 
 start_line = 'Total wallclock time elapsed since start'
 
+mf2d_data_scalar_ref = []
 mf2d_data_scalar = []
+mf2d_data_none = []
+mf2d_data_acegen = []
 mf2d_data_tensor2 = []
 mf2d_data_tensor4 = []
 mf2d_data_tensor4_ns = []
 mb2d_data = []
 
+mf3d_data_scalar_ref = []
 mf3d_data_scalar = []
+mf3d_data_none = []
+mf3d_data_acegen = []
 mf3d_data_tensor2 = []
 mf3d_data_tensor4 = []
 mf3d_data_tensor4_ns = []
@@ -126,7 +132,12 @@ for f in files:
     # finish processing the file, put the data
     tp = tuple((p, dofs, tr_memory, mf_memory, timing, cg_iterations))
     if 'MF_CG' in f:
-        if '_scalar' in f:
+        if '_scalar_ref' in f:
+            if dim == 2:
+                mf2d_data_scalar_ref.append(tp)
+            else:
+                mf3d_data_scalar_ref.append(tp)
+        elif '_scalar' in f:
             if dim == 2:
                 mf2d_data_scalar.append(tp)
             else:
@@ -136,6 +147,16 @@ for f in files:
                 mf2d_data_tensor2.append(tp)
             else:
                 mf3d_data_tensor2.append(tp)
+        elif '_none' in f:
+            if dim == 2:
+                mf2d_data_none.append(tp)
+            else:
+                mf3d_data_none.append(tp)
+        elif '_acegen_' in f:
+            if dim == 2:
+                mf2d_data_acegen.append(tp)
+            else:
+                mf3d_data_acegen.append(tp)
         # first check tensor4_ns so that that tensor4 is not triggered
         # for this case
         elif '_tensor4_ns' in f:
@@ -157,12 +178,16 @@ for f in files:
 # now we have lists of tuples ready
 # first, sort by degree:
 mf2d_data_scalar.sort(key=lambda tup: tup[0])
+mf2d_data_none.sort(key=lambda tup: tup[0])
+mf2d_data_acegen.sort(key=lambda tup: tup[0])
 mf2d_data_tensor2.sort(key=lambda tup: tup[0])
 mf2d_data_tensor4.sort(key=lambda tup: tup[0])
 mf2d_data_tensor4_ns.sort(key=lambda tup: tup[0])
 mb2d_data.sort(key=lambda tup: tup[0])
 
 mf3d_data_scalar.sort(key=lambda tup: tup[0])
+mf3d_data_none.sort(key=lambda tup: tup[0])
+mf3d_data_acegen.sort(key=lambda tup: tup[0])
 mf3d_data_tensor2.sort(key=lambda tup: tup[0])
 mf3d_data_tensor4.sort(key=lambda tup: tup[0])
 mf3d_data_tensor4_ns.sort(key=lambda tup: tup[0])
@@ -175,24 +200,32 @@ deg3d = [tup[0] for tup in mf3d_data_scalar]
 # vmult time per dof
 time2d_tr    = [tup[4][1]/tup[1] for tup in mb2d_data]
 time2d_sc    = [tup[4][0]/tup[1] for tup in mf2d_data_scalar]
+time2d_nn    = [tup[4][0]/tup[1] for tup in mf2d_data_none]
+time2d_ag    = [tup[4][0]/tup[1] for tup in mf2d_data_acegen]
 time2d_t2    = [tup[4][0]/tup[1] for tup in mf2d_data_tensor2]
 time2d_t4    = [tup[4][0]/tup[1] for tup in mf2d_data_tensor4]
 time2d_t4_ns = [tup[4][0]/tup[1] for tup in mf2d_data_tensor4_ns]
 
 time3d_tr    = [tup[4][1]/tup[1] for tup in mb3d_data]
 time3d_sc    = [tup[4][0]/tup[1] for tup in mf3d_data_scalar]
+time3d_nn    = [tup[4][0]/tup[1] for tup in mf3d_data_none]
+time3d_ag    = [tup[4][0]/tup[1] for tup in mf3d_data_acegen]
 time3d_t2    = [tup[4][0]/tup[1] for tup in mf3d_data_tensor2]
 time3d_t4    = [tup[4][0]/tup[1] for tup in mf3d_data_tensor4]
 time3d_t4_ns = [tup[4][0]/tup[1] for tup in mf3d_data_tensor4_ns]
 
 through2d_tr    = [tup[1]/tup[4][1] for tup in mb2d_data]
 through2d_sc    = [tup[1]/tup[4][0] for tup in mf2d_data_scalar]
+through2d_nn    = [tup[1]/tup[4][0] for tup in mf2d_data_none]
+through2d_ag    = [tup[1]/tup[4][0] for tup in mf2d_data_acegen]
 through2d_t2    = [tup[1]/tup[4][0] for tup in mf2d_data_tensor2]
 through2d_t4    = [tup[1]/tup[4][0] for tup in mf2d_data_tensor4]
 through2d_t4_ns = [tup[1]/tup[4][0] for tup in mf2d_data_tensor4_ns]
 
 through3d_tr    = [tup[1]/tup[4][1] for tup in mb3d_data]
 through3d_sc    = [tup[1]/tup[4][0] for tup in mf3d_data_scalar]
+through3d_nn    = [tup[1]/tup[4][0] for tup in mf3d_data_none]
+through3d_ag    = [tup[1]/tup[4][0] for tup in mf3d_data_acegen]
 through3d_t2    = [tup[1]/tup[4][0] for tup in mf3d_data_tensor2]
 through3d_t4    = [tup[1]/tup[4][0] for tup in mf3d_data_tensor4]
 through3d_t4_ns = [tup[1]/tup[4][0] for tup in mf3d_data_tensor4_ns]
@@ -200,6 +233,8 @@ through3d_t4_ns = [tup[1]/tup[4][0] for tup in mf3d_data_tensor4_ns]
 # solver time per dof
 solver2d_tr        = [tup[4][2]/tup[1] for tup in mb2d_data]
 solver2d_sc        = [tup[4][2]/tup[1] for tup in mf2d_data_scalar]
+solver2d_nn        = [tup[4][2]/tup[1] for tup in mf2d_data_none]
+solver2d_ag        = [tup[4][2]/tup[1] for tup in mf2d_data_acegen]
 solver2d_t2        = [tup[4][2]/tup[1] for tup in mf2d_data_tensor2]
 solver2d_t4        = [tup[4][2]/tup[1] for tup in mf2d_data_tensor4]
 solver2d_t4_ns     = [tup[4][2]/tup[1] for tup in mf2d_data_tensor4_ns]
@@ -207,6 +242,8 @@ solver2d_t4_coarse = [tup[4][4]/tup[1] for tup in mf2d_data_tensor4]
 
 solver3d_tr        = [tup[4][2]/tup[1] for tup in mb3d_data]
 solver3d_sc        = [tup[4][2]/tup[1] for tup in mf3d_data_scalar]
+solver3d_nn        = [tup[4][2]/tup[1] for tup in mf3d_data_none]
+solver3d_ag        = [tup[4][2]/tup[1] for tup in mf3d_data_acegen]
 solver3d_t2        = [tup[4][2]/tup[1] for tup in mf3d_data_tensor2]
 solver3d_t4        = [tup[4][2]/tup[1] for tup in mf3d_data_tensor4]
 solver3d_t4_ns     = [tup[4][2]/tup[1] for tup in mf3d_data_tensor4_ns]
@@ -257,12 +294,16 @@ cg3d_t4 = [tup[5] for tup in mf3d_data_tensor4]
 # Mb per dof
 mem2d_tr    = [tup[2]/tup[1] for tup in mb2d_data]
 mem2d_sc    = [tup[3]/tup[1] for tup in mf2d_data_scalar]
+mem2d_nn    = [tup[3]/tup[1] for tup in mf2d_data_none]
+mem2d_ag    = [tup[3]/tup[1] for tup in mf2d_data_acegen]
 mem2d_t2    = [tup[3]/tup[1] for tup in mf2d_data_tensor2]
 mem2d_t4    = [tup[3]/tup[1] for tup in mf2d_data_tensor4]
 mem2d_t4_ns = [tup[3]/tup[1] for tup in mf2d_data_tensor4_ns]
 
 mem3d_tr    = [tup[2]/tup[1] for tup in mb3d_data]
 mem3d_sc    = [tup[3]/tup[1] for tup in mf3d_data_scalar]
+mem3d_nn    = [tup[3]/tup[1] for tup in mf3d_data_none]
+mem3d_ag    = [tup[3]/tup[1] for tup in mf3d_data_acegen]
 mem3d_t2    = [tup[3]/tup[1] for tup in mf3d_data_tensor2]
 mem3d_t4    = [tup[3]/tup[1] for tup in mf3d_data_tensor4]
 mem3d_t4_ns = [tup[3]/tup[1] for tup in mf3d_data_tensor4_ns]
@@ -291,15 +332,17 @@ plt.rcParams.update(params)
 ratio = 0.7
 timing_exp = -8 if "CSL" in args.prefix else -7
 
+
 ax = plt.figure().gca()
 #ax.yaxis.set_major_formatter(OOMFormatter(timing_exp, "%1.1f"))
 ax.ticklabel_format(axis='y', style='sci', scilimits=(0,0))
 ax.xaxis.set_major_locator(MaxNLocator(integer=True))
-plt.plot(deg2d,time2d_tr, 'rs--', label='Trilinos')
+# plt.plot(deg2d,time2d_tr, 'rs--', label='Trilinos')
 plt.plot(deg2d,time2d_sc, 'bo--', label='MF scalar')
-plt.plot(deg2d,time2d_t2, 'g^--', label='MF tensor2')
-plt.plot(deg2d,time2d_t4, 'cv--', label='MF tensor4')
-#plt.plot(deg2d,time2d_t4_ns, 'mD--', label='MF tensor4 P')
+# plt.plot(deg2d,time2d_t2, 'g^--', label='MF tensor2')
+#plt.plot(deg2d,time2d_t4, 'cv--', label='MF tensor4')
+plt.plot(deg2d,time2d_ag, 'cv--', label='MF none')
+plt.plot(deg2d,time2d_t4_ns, 'mD--', label='MF tensor4 ')
 plt.xlabel('polynomial degree')
 plt.ylabel('vmult wall time (s) / DoF')
 leg = plt.legend(loc='best', ncol=1)

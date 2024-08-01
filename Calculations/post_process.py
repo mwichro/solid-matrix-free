@@ -19,7 +19,7 @@ class OOMFormatter(matplotlib.ticker.ScalarFormatter):
         matplotlib.ticker.ScalarFormatter.__init__(self,useOffset=offset,useMathText=mathText)
     def _set_orderOfMagnitude(self, nothing):
         self.orderOfMagnitude = self.oom
-    def _set_format(self, vmin, vmax):
+    def _set_format(self, vmin=None, vmax=None):
         self.format = self.fformat
         if self._useMathText:
             self.format = '$%s$' % matplotlib.ticker._mathdefault(self.format)
@@ -292,7 +292,7 @@ ratio = 0.7
 timing_exp = -8 if "CSL" in args.prefix else -7
 
 ax = plt.figure().gca()
-ax.yaxis.set_major_formatter(OOMFormatter(timing_exp, "%1.1f"))
+#ax.yaxis.set_major_formatter(OOMFormatter(timing_exp, "%1.1f"))
 ax.ticklabel_format(axis='y', style='sci', scilimits=(0,0))
 ax.xaxis.set_major_locator(MaxNLocator(integer=True))
 plt.plot(deg2d,time2d_tr, 'rs--', label='Trilinos')
@@ -304,7 +304,7 @@ plt.xlabel('polynomial degree')
 plt.ylabel('vmult wall time (s) / DoF')
 leg = plt.legend(loc='best', ncol=1)
 ax.set_aspect(1.0/ax.get_data_ratio()*ratio)
-#plt.savefig(fig_prefix + 'timing2d.pdf', format='pdf', bbox_inches = 'tight')
+plt.savefig(fig_prefix + 'timing2d.pdf', format='pdf', bbox_inches = 'tight')
 # plt.show()
 
 

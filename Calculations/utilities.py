@@ -7,7 +7,7 @@ def remove_creation_date(file_name):
     '''remove creationg data from .eps file in place'''
     for line in fileinput.input(file_name, inplace=True):
         if not 'CreationDate' in line:
-            print line,
+            print (line,)
 
 def collection_toutput_files(prefix):
     '''starting from prefix, collection full path to all files that
@@ -151,7 +151,7 @@ def parse_likwid_file(filename, last_line = '', debug_output = False):
             if 'Region:' in line:
                 region = line[8:]
                 if debug_output:
-                    print '-- Region: {0}'.format(region)
+                    print ('-- Region: {0}'.format(region))
                 # regions should be unique
                 assert region not in result
                 result[region] = {}
@@ -176,7 +176,7 @@ def parse_likwid_file(filename, last_line = '', debug_output = False):
             # dummy output in the terminal, skip it
             if separator_counter == 0 and len(line) > 0:
                 if debug_output:
-                    print '-- Skip line: {0}'.format(line)
+                    print ('-- Skip line: {0}'.format(line))
                 continue
 
             # Otherwise if we are in LIKWID part, we should have some region always around
@@ -194,7 +194,7 @@ def parse_likwid_file(filename, last_line = '', debug_output = False):
                 assert table_name not in result[region]
                 result[region][table_name] = {}
                 if debug_output:
-                    print '   Name  : {0}'.format(table_name)
+                    print ('   Name  : {0}'.format(table_name))
             else:
                 # we should have table name around already
                 assert table_name != ''
@@ -208,12 +208,12 @@ def parse_likwid_file(filename, last_line = '', debug_output = False):
                 # finally put the data
                 result[region][table_name][key] = val
                 if debug_output:
-                    print '      {0}'.format(key)
+                    print ('      {0}'.format(key))
         else:
             # If we have not found LIKWID part yet
             if not no_last_line and last_line in line:
                 if debug_output:
-                    print '-- Start parsing from line: {0}'.format(line)
+                    print ('-- Start parsing from line: {0}'.format(line))
                 found_start = True
 
     return result

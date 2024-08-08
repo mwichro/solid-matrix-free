@@ -13,9 +13,9 @@ parser.add_argument('--dir', metavar='dir', default='Simserv06',
                     help='Subdirectory to store calculations')
 parser.add_argument('--prefix', metavar='prefix', default='/scratch/mwichro/large-strain-matrix-free/build/',
                     help='Build directory with executable `main`')
-parser.add_argument('--calc', metavar='calc', default='/scratch/mwichro/large-strain-matrix-free/Calculations',
+parser.add_argument('--calc', metavar='calc', default='/scratch/mwichro/large-strain-matrix-free/Calculations/',
                     help='Directory with calculations where .prm files will be generated and `base_prm` is located')
-parser.add_argument('--mpirun', metavar='mpirun', default='mpirun -np 20',
+parser.add_argument('--mpirun', metavar='mpirun', default='mpirun -np 32',
                     help='mpi run command with cores')
 parser.add_argument('--likwid', help='Prepare LIKWID run', action="store_true")
 parser.add_argument('--single', help='LIKWID single MPI core run', action="store_true")
@@ -40,9 +40,9 @@ poly_quad_ref_dim = [
 ]
 
 poly_quad_ref_dim_likwid = [
-    # (2,3,6,2),
-    # (4,5,5,2),
-    # (6,7,4,2),
+    (2,3,6,2),
+    (4,5,5,2),
+    (6,7,4,2),
     (2,3,3,3),
     (4,5,2,3),
 ]
@@ -63,7 +63,9 @@ solvers = [
     ('MF_CG', 'gmg', 'none'),
     ('MF_CG', 'gmg', 'tensor2'),
     ('MF_CG', 'gmg', 'acegen_cached'),
-    ('MF_CG', 'gmg', 'tensor4_ns')
+    ('MF_CG', 'gmg', 'tensor4_ns'),
+    ('CG',    'amg', 'scalar'),
+    ('MF_CG', 'gmg', 'tensor4')
 ]
 
 # solvers_likwid = [
@@ -82,6 +84,7 @@ solvers_likwid = [
     ('MF_CG', 'gmg', 'tensor2'),
     ('MF_CG', 'gmg', 'acegen_cached'),
     ('MF_CG', 'gmg', 'tensor4_ns'),
+    ('MF_CG', 'gmg', 'tensor4')
 ]
 
 # if args.single:
@@ -98,7 +101,7 @@ solvers_likwid = [
 # MPI run command (override if use LIKWID)
 mpirun_args = args.mpirun
 if args.likwid:
-  mpirun_args = 'likwid-mpirun -np {0} -nperdomain S:{0} -g MEM_DP -m'.format(1 if args.single else 10)
+  mpirun_args = 'likwid-mpirun -np {0} -nperdomain S:{0} -g MEM_DP -m'.format(1 if args.single else 16)
 
 mpicmd = mpirun_args + ' ' + args.prefix + 'main ' + args.calc + '{0}.prm 2>&1 | tee {0}.toutput\nmv {0}.toutput {1}{0}/{0}.toutput\n\n'
 

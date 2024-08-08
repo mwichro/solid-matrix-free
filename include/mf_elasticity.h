@@ -699,6 +699,10 @@ namespace Cook_Membrane
     void
     assemble_system();
 
+    // Function to assemble the right hand side vecotr in matrix-free manner.
+    void
+    assemble_residual();
+
     // Apply Dirichlet boundary conditions on the displacement field
     void
     make_constraints(const int &it_nr);
@@ -2343,15 +2347,24 @@ namespace Cook_Membrane
         // update total solution prior to assembly
         set_total_solution();
 
+        // setup matrix-free part:
+        setup_matrix_free(newton_iteration);
+
         // now ready to go-on and assmble linearized problem around solution_n +
         // solution_delta for this iteration.
         assemble_system();
 
+        assemble_residual();
+        // Check wheter the residual from assembly is the same as from AD
+        auto rhs_cp = system_rhs;
+        copy_trilinos(rhs_cp, system_rhs_trilinos);
+        rhs_cp -= system_rhs;
+        if (rhs_cp.l2_norm() > 1e-8)
+          pcout << std::endl
+                << "L2 difference of rhs: " << rhs_cp.l2_norm() << std::endl;
+
         if (check_convergence(newton_iteration))
           break;
-
-        // setup matrix-free part:
-        setup_matrix_free(newton_iteration);
 
         // check vmult of matrix-based and matrix-free for a random vector:
         {
@@ -2922,6 +2935,80 @@ namespace Cook_Membrane
 
     copy_trilinos(system_rhs, system_rhs_trilinos);
   }
+
+
+  // Note that we must ensure that
+  // the matrix is reset before any assembly operations can occur.
+  template <int dim, int degree, int n_q_points_1d, typename NumberType>
+  void
+  Solid<dim, degree, n_q_points_1d, NumberType>::assemble_residual()
+  {
+    Vector<double>                       cell_rhs(dofs_per_cell);
+    std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
+    FEFaceValues<dim>                    fe_face_values(fe,
+                                     qf_face,
+                                     update_values | update_quadrature_points |
+                                       update_JxW_values);
+
+    // FIXME: it is unclear whether this code will handle non-zero dirichlet BC
+    // most likely not, but we have zero Dirchlet and IDC.
+
+    system_rhs = 0;
+
+    mf_nh_operator.compute_resudual(system_rhs);
+    system_rhs *= -1;
+
+
+    for (const auto &cell : dof_handler.active_cell_iterators())
+      {
+        if (!cell->is_locally_owned())
+          continue;
+
+        cell_rhs = 0.;
+        cell->get_dof_indices(local_dof_indices);
+
+        for (unsigned int face = 0; face < GeometryInfo<dim>::faces_per_cell;
+             ++face)
+          if (cell->face(face)->at_boundary() == true)
+            {
+              const auto &el =
+                parameters.neumann.find(cell->face(face)->boundary_id());
+              if (el == parameters.neumann.end())
+                continue;
+
+              fe_face_values.reinit(cell, face);
+              for (unsigned int f_q_point = 0; f_q_point < n_q_points_f;
+                   ++f_q_point)
+                {
+                  // We specify the traction in reference configuration
+                  // according to the parameter file.
+
+                  // Note that the contributions to the right hand side
+                  // vector we compute here only exist in the displacement
+                  // components of the vector.
+                  Vector<double> traction(dim);
+                  (*el).second->vector_value(
+                    fe_face_values.quadrature_point(f_q_point), traction);
+
+                  for (unsigned int i = 0; i < dofs_per_cell; ++i)
+                    {
+                      const unsigned int component_i =
+                        fe.system_to_component_index(i).first;
+                      const double Ni =
+                        fe_face_values.shape_value(i, f_q_point);
+                      const double JxW = fe_face_values.JxW(f_q_point);
+                      cell_rhs(i) += (Ni * traction[component_i]) * JxW;
+                    }
+                }
+            }
+
+        constraints.distribute_local_to_global(cell_rhs,
+                                               local_dof_indices,
+                                               system_rhs);
+      }
+    system_rhs.compress(VectorOperation::add);
+  }
+
 
 
   // @sect4{Solid::make_constraints}

@@ -227,6 +227,16 @@ public:
   std::size_t
   memory_consumption() const;
 
+  /**
+   * Compute residual contribution from integral over the volume. Body force
+   * assumed 0
+   * Warning: This function does not zero out the residual, neither it calls
+   * compress().
+   *
+   */
+  void
+  compute_resudual(LinearAlgebra::distributed::Vector<number> &residual) const;
+
 private:
   /**
    * Apply operator on a range of cells.
@@ -743,6 +753,58 @@ NeoHookOperator<dim, fe_degree, n_q_points_1d, number>::vmult_add(
   if (mask & MFMask::RW)
     for (const auto dof : data_current->get_constrained_dofs())
       dst.local_element(dof) += src.local_element(dof);
+}
+
+
+template <int dim, int fe_degree, int n_q_points_1d, typename number>
+void
+NeoHookOperator<dim, fe_degree, n_q_points_1d, number>::compute_resudual(
+  LinearAlgebra::distributed::Vector<number> &residual) const
+{
+  using VectorizedNumber = VectorizedArray<number>;
+
+  Tensor<1, dim, VectorizedNumber> uIn;
+  Tensor<2, dim, VectorizedNumber> graduIn;
+  Tensor<1, dim, VectorizedNumber> valueOut;
+  Tensor<2, dim, VectorizedNumber> gradientOut;
+
+
+
+  FEEvaluation<dim, fe_degree, n_q_points_1d, dim, double> phi_reference(
+    *data_reference);
+
+
+  for (unsigned int cell = 0; cell < data_reference->n_cell_batches(); ++cell)
+    {
+      const unsigned int material_id =
+        data_current->get_cell_iterator(cell, 0)->material_id();
+      const auto &cell_mat = (material_id == 0 ? material : material_inclusion);
+      const VectorizedNumber mu     = cell_mat->mu;
+      const VectorizedNumber lambda = cell_mat->lambda;
+
+      phi_reference.reinit(cell);
+      phi_reference.read_dof_values_plain(*displacement);
+      phi_reference.evaluate(EvaluationFlags::values |
+                             EvaluationFlags::gradients);
+
+
+
+      for (unsigned int q = 0; q < phi_reference.n_q_points; ++q)
+        {
+          uIn     = phi_reference.get_value(q);
+          graduIn = phi_reference.get_gradient(q);
+
+          NeoHookean<dim>::Residual_local(
+            uIn, graduIn, valueOut, gradientOut, mu, lambda);
+
+          phi_reference.submit_value(valueOut, q);
+          phi_reference.submit_gradient(gradientOut, q);
+        }
+
+      phi_reference.integrate(EvaluationFlags::values |
+                              EvaluationFlags::gradients);
+      phi_reference.distribute_local_to_global(residual);
+    }
 }
 
 

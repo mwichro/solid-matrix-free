@@ -14,7 +14,7 @@ static const unsigned int debug_level = 0;
 // We start by including all the necessary deal.II header files and some C++
 // related ones. They have been discussed in detail in previous tutorial
 // programs, so you need only refer to past tutorials for details.
-#include <deal.II/base/config.h>
+// #include <deal.II/base/config.h>
 
 #include <deal.II/base/conditional_ostream.h>
 #include <deal.II/base/function.h>
@@ -2352,16 +2352,25 @@ namespace Cook_Membrane
 
         // now ready to go-on and assmble linearized problem around solution_n +
         // solution_delta for this iteration.
-        assemble_system();
-
         assemble_residual();
-        // Check wheter the residual from assembly is the same as from AD
-        auto rhs_cp = system_rhs;
-        copy_trilinos(rhs_cp, system_rhs_trilinos);
-        rhs_cp -= system_rhs;
-        if (rhs_cp.l2_norm() > 1e-8)
-          pcout << std::endl
-                << "L2 difference of rhs: " << rhs_cp.l2_norm() << std::endl;
+
+
+        if (!parameters.skip_tangent_assembly)
+          {
+            auto rhs_cp = system_rhs;
+            assemble_system();
+            // Check wheter the residual from assembly is the same as from AD
+            rhs_cp -= system_rhs;
+            if (rhs_cp.l2_norm() > 1e-8)
+              {
+                pcout << std::endl
+                      << "L2 difference of rhs: " << rhs_cp.l2_norm()
+                      << std::endl;
+                solution_n = rhs_cp;
+                output_results();
+                std::abort();
+              }
+          }
 
         if (check_convergence(newton_iteration))
           break;
@@ -3006,7 +3015,14 @@ namespace Cook_Membrane
                                                local_dof_indices,
                                                system_rhs);
       }
+
+
+
     system_rhs.compress(VectorOperation::add);
+
+    constraints.set_zero(system_rhs);
+    error_residual.norm = system_rhs_trilinos.l2_norm();
+    error_residual.u    = system_rhs_trilinos.l2_norm();
   }
 
 

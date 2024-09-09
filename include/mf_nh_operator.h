@@ -480,8 +480,11 @@ void
 NeoHookOperator<dim, fe_degree, n_q_points_1d, number>::cache()
 {
   if (mf_caching == MFCaching::none)
-    return;
-
+    {
+      LIKWID_MARKER_START("precompute_cache");
+      LIKWID_MARKER_STOP("precompute_cache");
+      return;
+    }
   const unsigned int n_cells = data_reference->n_cell_batches();
 
   FEEvaluation<dim, fe_degree, n_q_points_1d, dim, number> phi_reference(
@@ -489,6 +492,7 @@ NeoHookOperator<dim, fe_degree, n_q_points_1d, number>::cache()
 
   for (unsigned int cell = 0; cell < n_cells; ++cell)
     {
+      LIKWID_MARKER_START("precompute_cache");
       const unsigned int material_id =
         data_current->get_cell_iterator(cell, 0)->material_id();
       const auto &cell_mat = (material_id == 0 ? material : material_inclusion);
@@ -638,6 +642,7 @@ NeoHookOperator<dim, fe_degree, n_q_points_1d, number>::cache()
         }
       else
         AssertThrow(false, ExcMessage("Unknown material formulation"));
+      LIKWID_MARKER_STOP("precompute_cache");
     }
 }
 

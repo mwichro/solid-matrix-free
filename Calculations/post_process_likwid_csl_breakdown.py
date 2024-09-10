@@ -32,8 +32,8 @@ prefix = args.prefix if args.prefix.startswith('/') else os.path.join(os.getcwd(
 files = collection_toutput_files(prefix)
 pattern = get_regex_pattern()
 
-print 'Gather data from {0}'.format(prefix)
-print 'found {0} files'.format(len(files))
+print ('Gather data from {0}'.format(prefix))
+print ('found {0} files'.format(len(files)))
 
 stack_labels = ['Zero vector', 'MPI', 'Quadrature loop', 'Read/Write', 'Sum factorization']
 stack_colors = ['b','g','c','m','r']
@@ -54,7 +54,7 @@ for f in files:
         ind.append(p)
 
 ind.sort()
-print 'Take degrees {0}'.format(ind)
+print ('Take degrees {0}'.format(ind))
 
 # prepare data here
 bar_data = [[ np.nan for i in range(len(ind))] for i in range(n_stack)]
@@ -79,7 +79,7 @@ for f in files:
     if not post_process:
         continue
 
-    print 'dim={0} p={1} q={2} file={3}'.format(dim,p,q,fname)
+    print ('dim={0} p={1} q={2} file={3}'.format(dim,p,q,fname))
 
     result = parse_likwid_file(f, last_line='LIKWID_MARKER_CLOSE', debug_output=False)
 
@@ -132,16 +132,16 @@ for f in files:
     def frac2per(frac):
         return int(math.floor(frac*100))
 
-    print 'Breakdown (Avg) timing from separate measurements:'
-    print '      |{0:>20} | {1:>4} | {2:>9}'.format('Time', 'Frac', 'Frac Cell')
-    print 'Total: {0:>20}'.format(time_vmult)
-    print 'Sum:   {0:>20}   {1:>4}'.format(time_ref, 100)
-    print 'SF:    {0:>20}   {1:>4}   {2:>9}'.format(time_sf, frac2per(fraction_sf), frac2per(cell_fraction_sf))
-    print 'RW:    {0:>20}   {1:>4}   {2:>9}'.format(time_rw, frac2per(fraction_rw), frac2per(cell_fraction_rw))
-    print 'QD:    {0:>20}   {1:>4}   {2:>9}'.format(time_qd, frac2per(fraction_qd), frac2per(cell_fraction_qd))
-    print 'Zero:  {0:>20}   {1:>4}'.format(time_zero, frac2per(fraction_zero))
-    print 'MPI:   {0:>20}   {1:>4}'.format(time_mpi, frac2per(fraction_mpi))
-    print ''
+    print ('Breakdown (Avg) timing from separate measurements:')
+    print ('      |{0:>20} | {1:>4} | {2:>9}'.format('Time', 'Frac', 'Frac Cell'))
+    print ('Total: {0:>20}'.format(time_vmult))
+    print ('Sum:   {0:>20}   {1:>4}'.format(time_ref, 100))
+    print ('SF:    {0:>20}   {1:>4}   {2:>9}'.format(time_sf, frac2per(fraction_sf), frac2per(cell_fraction_sf)))
+    print ('RW:    {0:>20}   {1:>4}   {2:>9}'.format(time_rw, frac2per(fraction_rw), frac2per(cell_fraction_rw)))
+    print ('QD:    {0:>20}   {1:>4}   {2:>9}'.format(time_qd, frac2per(fraction_qd), frac2per(cell_fraction_qd)))
+    print ('Zero:  {0:>20}   {1:>4}'.format(time_zero, frac2per(fraction_zero)))
+    print ('MPI:   {0:>20}   {1:>4}'.format(time_mpi, frac2per(fraction_mpi)))
+    print ('')
 
     # Now put stack bar data:
     for idx, s in enumerate(ind):
@@ -157,11 +157,11 @@ for f in files:
 #
 # Plot stack bar:
 #
-print '============ Plot stack bar ============'
-print 'Label             2               4'
+print ('============ Plot stack bar ============')
+print ('Label             2               4')
 for d, t in zip(bar_data, stack_labels):
-  print t.ljust(18) + '{0}'.format(d[0]).ljust(16) + '{0}'.format(d[1]).ljust(16)
-print ''
+  print (t.ljust(18) + '{0}'.format(d[0]).ljust(16) + '{0}'.format(d[1]).ljust(16))
+print ('')
 
 
 #
@@ -187,11 +187,11 @@ for j in range(len(ind)):      # for all degrees
     for k in range(i):
       bar_data_bottom[i][j] = bar_data_bottom[i][j] + bar_data[k][j]
 
-print 'Bottom for stack:'
-print 'Label             2               4'
+print ('Bottom for stack:')
+print ('Label             2               4')
 for d, t in zip(bar_data_bottom, stack_labels):
-  print t.ljust(18) + '{0}'.format(d[0]).ljust(16) + '{0}'.format(d[1]).ljust(16)
-print ''
+  print (t.ljust(18) + '{0}'.format(d[0]).ljust(16) + '{0}'.format(d[1]).ljust(16))
+print ('')
 
 width = 0.5
 bars = [i for i in range(n_stack)]

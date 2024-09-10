@@ -16,7 +16,23 @@
 #include <material.h>
 
 #include "cached_tangent.h"
-#include "models/neo_hookean.h"
+
+// #define MODEL_INCLUDE neo_hookean_v2
+
+#define HEADER_EXT .h
+#define MODEL_INCLUDE_FILE MODEL_INCLUDE HEADER_EXT
+
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
+// clang-format off
+#define MODEL_PATH models/
+// clang-format on
+#define MODEL_HEADER_PATH MODEL_PATH MODEL_INCLUDE_FILE
+
+#include TOSTRING(MODEL_HEADER_PATH)
+
+
+#pragma message("Selected model: " TOSTRING(MODEL_INCLUDE))
 
 // Define an operation that takes two tensors $ \mathbf{A} $ and
 // $ \mathbf{B} $ such that their outer-product

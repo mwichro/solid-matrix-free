@@ -60,6 +60,40 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(CMAKE_MACOSX_RPATH ON)
 ENDIF()
 
+
+# Specify the directory where the model header files are located
+set(MODEL_DIR "${CMAKE_SOURCE_DIR}/include/models")
+
+# Find all the header files in the models directory
+file(GLOB MODEL_FILES "${MODEL_DIR}/*.h")
+
+# Create a list of filenames for users to choose from
+list(TRANSFORM MODEL_FILES PREPEND "models/")
+set(MODEL_OPTIONS "")
+foreach(file ${MODEL_FILES})
+    get_filename_component(file_name ${file} NAME_WE)
+    list(APPEND MODEL_OPTIONS ${file_name})
+endforeach()
+
+message(STATUS "Available model files: ${MODEL_OPTIONS}")
+message(STATUS "Use -DSELECTED_MODEL to select different one")
+
+list(GET MODEL_OPTIONS 0 SELECTED_MODEL)
+
+# Print the selected model for verification
+message(STATUS "Selected model: ${SELECTED_MODEL}")
+
+# Check if SELECTED_MODEL is in the MODEL_OPTIONS list
+list(FIND MODEL_OPTIONS ${SELECTED_MODEL} SELECTED_INDEX)
+
+if(${SELECTED_INDEX} EQUAL -1)
+    message(FATAL_ERROR "Selected model '${SELECTED_MODEL}' is not in the list of available options.")
+    else()
+    message(STATUS "Model ${SELECTED_MODEL} is available")
+endif()
+
+add_definitions(-DMODEL_INCLUDE=${SELECTED_MODEL})
+
 # use, i.e. don't skip the full RPATH for the build tree
 SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
 

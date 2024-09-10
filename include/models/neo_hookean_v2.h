@@ -207,8 +207,6 @@ SolidModel<2>::tangent(const Tensor<2, dim, Number> &graduIn,
                          acegen_scratch__180__ * acegen_scratch__39__;
   acegen_scratch__45__ =
     0.1414213562373095e1 * acegen_scratch__178__ * acegen_scratch__37__;
-  valueOut[0]       = 0e0;
-  valueOut[1]       = 0e0;
   gradientOut[0][0] = acegen_scratch__15__ * acegen_scratch__159__ +
                       acegen_scratch__16__ * acegen_scratch__162__ +
                       acegen_scratch__10__ * acegen_scratch__45__ +
@@ -655,9 +653,6 @@ SolidModel<3>::tangent(const Tensor<2, dim, Number> &graduIn,
   acegen_scratch__71__ = acegen_scratch__262__ * acegen_scratch__59__;
   acegen_scratch__72__ = acegen_scratch__243__ * acegen_scratch__59__;
   acegen_scratch__73__ = 1e0 * acegen_scratch__226__ * acegen_scratch__59__;
-  valueOut[0]          = 0e0;
-  valueOut[1]          = 0e0;
-  valueOut[2]          = 0e0;
   gradientOut[0][0]    = acegen_scratch__27__ * acegen_scratch__383__ +
                       acegen_scratch__28__ * acegen_scratch__389__ +
                       acegen_scratch__29__ * acegen_scratch__390__ +

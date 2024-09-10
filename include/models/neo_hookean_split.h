@@ -19,6 +19,19 @@ Total size of C code            : 365 bytes */
 
 using namespace dealii;
 
+template <typename Number, std::size_t width>
+inline ::dealii::VectorizedArray<Number, width>
+Power(const ::dealii::VectorizedArray<Number, width> &                    x,
+      const typename ::dealii::VectorizedArray<Number, width>::value_type p)
+{
+  ::dealii::VectorizedArray<Number, width> out;
+  for (unsigned int i = 0; i < dealii::VectorizedArray<Number, width>::size();
+       ++i)
+    out[i] = std::pow(x[i], p);
+  return out;
+}
+
+
 template <int DIMENSION>
 struct SolidModel
 {
@@ -243,8 +256,6 @@ SolidModel<2>::tangent(const Tensor<2, dim, Number> &graduIn,
     2e0 * acegen_scratch__203__ * acegen_scratch__24__ *
       (0.3535533905932738e0 - 0.3535533905932738e0 * acegen_scratch__26__) +
     acegen_scratch__13__ * acegen_scratch__207__ * acegen_scratch__37__;
-  valueOut[0]       = 0e0;
-  valueOut[1]       = 0e0;
   gradientOut[0][0] = acegen_scratch__15__ * acegen_scratch__189__ +
                       acegen_scratch__16__ * acegen_scratch__192__ +
                       acegen_scratch__10__ * acegen_scratch__53__ +
@@ -727,9 +738,6 @@ SolidModel<3>::tangent(const Tensor<2, dim, Number> &graduIn,
   acegen_scratch__74__ = acegen_scratch__232__ * acegen_scratch__62__;
   acegen_scratch__75__ = acegen_scratch__213__ * acegen_scratch__62__;
   acegen_scratch__76__ = acegen_scratch__196__ * acegen_scratch__62__;
-  valueOut[0]          = 0e0;
-  valueOut[1]          = 0e0;
-  valueOut[2]          = 0e0;
   gradientOut[0][0]    = acegen_scratch__27__ * acegen_scratch__353__ +
                       acegen_scratch__28__ * acegen_scratch__359__ +
                       acegen_scratch__29__ * acegen_scratch__360__ +

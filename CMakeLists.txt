@@ -78,19 +78,25 @@ endforeach()
 message(STATUS "Available model files: ${MODEL_OPTIONS}")
 message(STATUS "Use -DSELECTED_MODEL to select different one")
 
-list(GET MODEL_OPTIONS 0 SELECTED_MODEL)
+if(DEFINED SELECTED_MODEL)
+    # Print the selected model for verification
+    message(STATUS "Selected model: ${SELECTED_MODEL}")
+    # Check if SELECTED_MODEL is in the MODEL_OPTIONS list
+    list(FIND MODEL_OPTIONS ${SELECTED_MODEL} SELECTED_INDEX)
+
+    if(${SELECTED_INDEX} EQUAL -1)
+      message(FATAL_ERROR "Selected model '${SELECTED_MODEL}' is not in the list of available options.")
+    else()
+      message(STATUS "Model ${SELECTED_MODEL} is available")
+    endif()
+
+else()
+    list(GET MODEL_OPTIONS 0 SELECTED_MODEL)
+    set(SELECTED_MODEL ${MODEL_OPTIONS} CACHE STRING "Select the model header to include")
+endif()
 
 # Print the selected model for verification
-message(STATUS "Selected model: ${SELECTED_MODEL}")
 
-# Check if SELECTED_MODEL is in the MODEL_OPTIONS list
-list(FIND MODEL_OPTIONS ${SELECTED_MODEL} SELECTED_INDEX)
-
-if(${SELECTED_INDEX} EQUAL -1)
-    message(FATAL_ERROR "Selected model '${SELECTED_MODEL}' is not in the list of available options.")
-    else()
-    message(STATUS "Model ${SELECTED_MODEL} is available")
-endif()
 
 add_definitions(-DMODEL_INCLUDE=${SELECTED_MODEL})
 
@@ -135,7 +141,11 @@ TARGET_LINK_LIBRARIES(${TARGET}
 # Likwid, configure with:
 # -DWITH_LIKWID=TRUE -DLIKWID_DIR=/path/to/prefix
 #
+OPTION(WITH_LIKWID "Enable LIKWID" OFF)
+
+
 IF (WITH_LIKWID)
+set(LIKWID_DIR "/usr/local/" CACHE PATH "Path to LIKWID installation directory")
   FIND_LIBRARY(LIKWID_LIBRARY
     NAMES likwid
     HINTS ${LIKWID_DIR}/lib

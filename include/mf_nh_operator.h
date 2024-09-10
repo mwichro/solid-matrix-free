@@ -16,7 +16,9 @@
 #include <material.h>
 
 #include "local_nh.h"
+#include "models/neo_hookean.h"
 // #include "mf_nh_cached.h"
+#include "cached_tangent.h"
 #include "mf_nh_cached_v2.h"
 
 // Define an operation that takes two tensors $ \mathbf{A} $ and
@@ -458,9 +460,7 @@ NeoHookOperator<dim, fe_degree, n_q_points_1d, number>::initialize(
   else if (caching == "acegen_cached")
     {
       mf_caching = MFCaching::acegen_cached;
-      cached_acegen.reinit(n_cells,
-                           phi.n_q_points,
-                           NeoHookeanCached<dim>::n_cached);
+      cached_acegen.reinit(n_cells, phi.n_q_points, SolidModel<dim>::n_cached);
     }
   else if (caching == "none")
     {
@@ -621,18 +621,17 @@ NeoHookOperator<dim, fe_degree, n_q_points_1d, number>::cache()
               else if (mf_caching == MFCaching::acegen_cached)
                 {
                   ArrayView<VectorizedArray<number>> acegen_cache_view(
-                    &cached_acegen(cell, q, 0),
-                    NeoHookeanCached<dim>::n_cached);
+                    &cached_acegen(cell, q, 0), SolidModel<dim>::n_cached);
                   Tensor<1, dim, VectorizedArray<number>> dummy1;
                   Tensor<2, dim, VectorizedArray<number>> dummy2;
 
-                  NeoHookeanCached<dim>::template cache_local<
-                    VectorizedArray<number>>(phi_reference.get_gradient(q),
-                                             dummy1,
-                                             dummy2,
-                                             acegen_cache_view,
-                                             cell_mat->mu,
-                                             cell_mat->lambda);
+                  SolidModel<dim>::template cache<VectorizedArray<number>>(
+                    phi_reference.get_gradient(q),
+                    dummy1,
+                    dummy2,
+                    acegen_cache_view,
+                    cell_mat->mu,
+                    cell_mat->lambda);
                 }
               else
                 {
@@ -1395,14 +1394,17 @@ NeoHookOperator<dim, fe_degree, n_q_points_1d, number>::do_operation_on_cell(
           for (unsigned int q = 0; q < phi_current.n_q_points; ++q)
             {
               const ArrayView<const VectorizedArray<number>> acegen_cache_view(
-                &cached_acegen(cell, q, 0), NeoHookeanCached<dim>::n_cached);
+                &cached_acegen(cell, q, 0), SolidModel<dim>::n_cached);
 
               Tensor<2, dim, NumberType> gradientOut;
-              NeoHookeanCached<dim>::template Tangent_local<NumberType>(
+
+              Cached::Tangent<dim>::template evaluate_reference<NumberType>(
                 phi_reference.get_gradient(q),
                 phi_current.get_gradient(q),
                 acegen_cache_view,
                 gradientOut);
+
+
               phi_current.submit_gradient(gradientOut, q);
             }
         }

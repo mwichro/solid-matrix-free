@@ -15,11 +15,8 @@
 #include <config.h>
 #include <material.h>
 
-#include "local_nh.h"
-#include "models/neo_hookean.h"
-// #include "mf_nh_cached.h"
 #include "cached_tangent.h"
-#include "mf_nh_cached_v2.h"
+#include "models/neo_hookean.h"
 
 // Define an operation that takes two tensors $ \mathbf{A} $ and
 // $ \mathbf{B} $ such that their outer-product
@@ -798,7 +795,7 @@ NeoHookOperator<dim, fe_degree, n_q_points_1d, number>::compute_resudual(
           uIn     = phi_reference.get_value(q);
           graduIn = phi_reference.get_gradient(q);
 
-          NeoHookean<dim>::Residual_local(
+          SolidModel<dim>::residual(
             uIn, graduIn, valueOut, gradientOut, mu, lambda);
 
           phi_reference.submit_value(valueOut, q);
@@ -1375,7 +1372,7 @@ NeoHookOperator<dim, fe_degree, n_q_points_1d, number>::do_operation_on_cell(
           for (unsigned int q = 0; q < phi_current.n_q_points; ++q)
             {
               Tensor<2, dim, NumberType> gradientOut;
-              NeoHookean<dim>::template Tangent_local<NumberType>(
+              SolidModel<dim>::template tangent<NumberType>(
                 phi_reference.get_gradient(q),
                 phi_current.get_gradient(q),
                 gradientOut,

@@ -11,7 +11,7 @@ from matplotlib.ticker import MaxNLocator
 def remove_creation_date(file_name):
     for line in fileinput.input(file_name, inplace=True):
         if not 'CreationDate' in line:
-            print line,
+            print (line,)
 
 
 # define command line arguments
@@ -39,8 +39,8 @@ for root, dirs, files_ in os.walk(prefix):
         if f.endswith(".toutput"):
             files.append(os.path.join(root, f))
 
-print 'Gather data from {0}'.format(prefix)
-print 'found {0} files'.format(len(files))
+print ('Gather data from {0}'.format(prefix))
+print ('found {0} files'.format(len(files)))
 
 pattern = r'[+\-]?(?:[0-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+)?'
 
@@ -62,15 +62,15 @@ clock_speed = args.clockspeed  # GHz
 # likwid-bench -t load_avx -w S0:1GB:10:1:2
 B=47.16855 # 50 GB/s single socket
 
-print 'Peak performance calculations:'
+print ('Peak performance calculations:')
 P = clock_speed
-print '  Clock speed:  {0}'.format(clock_speed)
+print ('  Clock speed:  {0}'.format(clock_speed))
 P = P * 2                             # add+mult per cycle
-print '  w FMA:        {0}'.format(P)
+print ('  w FMA:        {0}'.format(P))
 P = P * 4                             # vectorization over 4 doubles = 256 bits (AVX), VECTORIZATION_LEVEL=2
-print '  w FMA w SIMD: {0}'.format(P)
+print ('  w FMA w SIMD: {0}'.format(P))
 P = P * 10                            # 10 cores
-print '  peak:         {0}'.format(P)
+print ('  peak:         {0}'.format(P))
 
 table_names = [
     'Event',
@@ -126,7 +126,7 @@ for f in files:
         label = 'Trilinos'
         color = 'r'
 
-    print 'dim={0} p={1} q={2} region={3} label={4} color={5} file={6}'.format(dim,p,q,regions[0],label,color,fname)
+    print ('dim={0} p={1} q={2} region={3} label={4} color={5} file={6}'.format(dim,p,q,regions[0],label,color,fname))
 
     fin = open(f, 'r')
 
@@ -160,7 +160,7 @@ for f in files:
         # Now check if the table is actually what we need
         if found_region and ('Metric' in line) and ('Sum' in line):
             found_table = True
-            print '-- Region {0} {1}'.format(regions[r_idx], r_idx)
+            print ('-- Region {0} {1}'.format(regions[r_idx], r_idx))
 
         # Only if we are inside the table of interest and region of interest, try to match the line:
         if found_table and found_region:
@@ -174,7 +174,7 @@ for f in files:
                         else:
                             # Take "Sum" (first number)
                             val = float(columns[2])
-                        print '   {0} {1}'.format(s,val)
+                        print ('   {0} {1}'.format(s,val))
                         # make sure we run with clockspeed we use for Roofline:
                         if 'Clock' in s:
                             # allow 0.1% variation
@@ -206,8 +206,8 @@ params = {'legend.fontsize': 14,
           'font.size': 20}
 plt.rcParams.update(params)
 
-plt.xscale('log', basex=2)
-plt.yscale('log', basey=2)
+plt.xscale('log', base=2)
+plt.yscale('log', base=2)
 
 # Roofline model
 # p = min (P, b I)
@@ -271,8 +271,8 @@ xmax = 2**6 + 10 if args.breakdown else 2**4
 xmin = 2**(-4)+0.01 if not args.breakdown else 2**(-5) + 1./80
 plt.xlim(right=xmax,left=xmin)
 plt.axes().set_aspect('equal', adjustable=None) #'datalim')
-plt.axes().yaxis.set_major_formatter(mp.ticker.FuncFormatter(lambda x, pos: '{0}'.format(int(round(x))) ))
-plt.axes().xaxis.set_major_formatter(mp.ticker.FuncFormatter(lambda x, pos: '1/{0}'.format(int(round(1./x))) if x < 1.0 else '{0}'.format(int(round(x))) ))
+#plt.axes().yaxis.set_major_formatter(mp.ticker.FuncFormatter(lambda x, pos: '{0}'.format(int(round(x))) ))
+#plt.axes().xaxis.set_major_formatter(mp.ticker.FuncFormatter(lambda x, pos: '1/{0}'.format(int(round(1./x))) if x < 1.0 else '{0}'.format(int(round(x))) ))
 
 ang = 45
 y_pos = 7.5 if args.breakdown else 8.5
@@ -293,7 +293,7 @@ name = 'roofline_{0}d.pdf'
 
 fig_file = fig_prefix + name.format(args.dim)
 
-print 'Saving figure in: {0}'.format(fig_file)
+print ('Saving figure in: {0}'.format(fig_file))
 
 plt.tight_layout()
 plt.savefig(fig_file, format='pdf')  # pdf has better colors
@@ -301,9 +301,9 @@ plt.savefig(fig_file, format='pdf')  # pdf has better colors
 
 # Finally report average performance for all MF and Trilinos runs:
 if not args.breakdown:
-  print 'Average performance:'
-  print '  MF:       {0}'.format(np.mean(mf_perf))
-  print '  Trilinos: {0}'.format(np.mean(tr_perf))
+  print ('Average performance:')
+  print ('  MF:       {0}'.format(np.mean(mf_perf)))
+  print ('  Trilinos: {0}'.format(np.mean(tr_perf)))
 else:
   # clear
   plt.clf()
@@ -334,17 +334,17 @@ else:
         for k in range(i):
           bar_data_bottom[i][j] = bar_data_bottom[i][j] + bar_data[k][j]
 
-  print '============ Bar data {0}d ============'.format(args.dim)
-  print 'Label             2                 4'
+  print ('============ Bar data {0}d ============'.format(args.dim))
+  print ('Label             2                 4')
   for d, t in zip(bar_data, region_labels):
-    print '{0}'.format(t.ljust(18)) + '{0}'.format(d[0]).ljust(18) + '{0}'.format(d[1]).ljust(18)
-  print ''
+    print ('{0}'.format(t.ljust(18)) + '{0}'.format(d[0]).ljust(18) + '{0}'.format(d[1]).ljust(18))
+  print ('')
 
-  print '============ Bar bottom {0}d ============'.format(args.dim)
-  print 'Label             2                 4'
+  print ('============ Bar bottom {0}d ============'.format(args.dim))
+  print ('Label             2                 4')
   for d, t in zip(bar_data_bottom, region_labels):
-    print '{0}'.format(t.ljust(18)) + '{0}'.format(d[0]).ljust(18) + '{0}'.format(d[1]).ljust(18)
-  print ''
+    print ('{0}'.format(t.ljust(18)) + '{0}'.format(d[0]).ljust(18) + '{0}'.format(d[1]).ljust(18))
+  print ('')
 
   width = 0.5
   bars = [i for i in range(len(region_labels))]
@@ -364,6 +364,6 @@ else:
 
   name = 'stackedbar_{0}d.pdf'
   fig_file = fig_prefix + name.format(args.dim)
-  print 'Saving figure in: {0}'.format(fig_file)
+  print ('Saving figure in: {0}'.format(fig_file))
   plt.tight_layout()
   plt.savefig(fig_file, format='pdf')  # pdf has better colors

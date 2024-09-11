@@ -19,6 +19,8 @@ parser.add_argument('--mpirun', metavar='mpirun', default='mpirun -np 32',
                     help='mpi run command with cores')
 parser.add_argument('--likwid', help='Prepare LIKWID run', action="store_true")
 parser.add_argument('--single', help='LIKWID single MPI core run', action="store_true")
+parser.add_argument('--custom_model', default='false', help='Run only solvers that are implemented for custom models.')
+
 args = parser.parse_args()
 
 # parameters (list of tuples):
@@ -68,6 +70,12 @@ solvers = [
     ('MF_CG', 'gmg', 'tensor4')
 ]
 
+
+solvers_custom= [
+    ('MF_CG', 'gmg', 'none'),
+    ('MF_CG', 'gmg', 'acegen_cached'),
+]
+
 # solvers_likwid = [
 #     ('MF_CG', 'gmg', 'scalar'),
 #     ('MF_CG', 'gmg', 'scalar_referential'),
@@ -109,6 +117,11 @@ mpicmd = mpirun_args + ' ' + args.prefix + 'main ' + args.calc + '{0}.prm 2>&1 |
 if args.likwid:
   solvers = solvers_likwid
   poly_quad_ref_dim = poly_quad_ref_dim_likwid
+
+# if run for a custom model, run only those that are implement:
+if args.custom_model:
+  solvers = solvers_custom
+
 
 #
 # from here on the actual preprocessing:
@@ -221,7 +234,7 @@ for pqrd in poly_quad_ref_dim:
 # two more runs just to illustrate the deformed mesh
 if not args.likwid:
   for pqrd in [(2,3,2,2),(2,3,2,3)]:
-      for s in [('MF_CG', 'gmg', 'tensor4')]:
+      for s in [('MF_CG', 'gmg', 'none')]:
           name = '__' + base_name + '_{6}d_p{0}q{1}r{2}_{3}_{4}_{5}'.format(pqrd[0],pqrd[1],pqrd[2],s[0],s[1],s[2],pqrd[3])
           fname = name + '.prm'
           print ('{0}'.format(fname))

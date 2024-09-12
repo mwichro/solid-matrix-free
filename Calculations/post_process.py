@@ -32,6 +32,8 @@ parser.add_argument('--prefix', metavar='prefix', default='CSL_Munich',
                     help='A folder to look for benchmark results')
 parser.add_argument('--custom_model', metavar='custom_model', default='false', 
                     help='Only plot runs with none and acegen caching')
+parser.add_argument('--log_scale', metavar='log_scale', default='false', 
+                    help='Logarythimc scaling of y axis')
 args = parser.parse_args()
 
 prefix = args.prefix if args.prefix.startswith('/') else os.path.join(os.getcwd(), args.prefix)
@@ -340,6 +342,8 @@ ax = plt.figure().gca()
 ax.ticklabel_format(axis='y', style='sci', scilimits=(0,0))
 ax.xaxis.set_major_locator(MaxNLocator(integer=True))
 
+if args.log_scale == True:
+    plt.yscale('log')
 
 plt.plot(deg2d,time2d_nn, 'cv--', label='MF none')
 if args.custom_model == False:
@@ -369,6 +373,9 @@ ax = plt.figure().gca()
 ax.ticklabel_format(axis='y', style='sci', scilimits=(0,0))
 ax.xaxis.set_major_locator(MaxNLocator(integer=True))
 
+if args.log_scale == True:
+    plt.yscale('log')
+
 plt.plot(deg3d,time3d_nn, 'cv--', label='MF none')
 if args.custom_model == False:
     plt.plot(deg3d,time3d_tr, 'rs--', label='Trilinos')
@@ -395,6 +402,9 @@ ax = plt.figure().gca()
 ax.ticklabel_format(axis='y', style='sci', scilimits=(0,0))
 ax.xaxis.set_major_locator(MaxNLocator(integer=True))
 
+if args.log_scale == True:
+    plt.yscale('log')
+
 plt.plot(deg2d,through2d_nn, 'cv--', label='MF none')
 if args.custom_model == False:
     plt.plot(deg2d,through2d_tr, 'rs--', label='Trilinos')
@@ -419,6 +429,9 @@ ax = plt.figure().gca()
 ax.ticklabel_format(axis='y', style='sci', scilimits=(0,0))
 ax.xaxis.set_major_locator(MaxNLocator(integer=True))
 
+if args.log_scale == True:
+    plt.yscale('log')
+
 plt.plot(deg3d,through3d_nn, 'cv--', label='MF none')
 if args.custom_model == False:
     plt.plot(deg3d,through3d_tr, 'rs--', label='Trilinos')
@@ -441,6 +454,9 @@ ax = plt.figure().gca()
 ax.xaxis.set_major_locator(MaxNLocator(integer=True))
 # ax.yaxis.set_major_formatter(OOMFormatter(-3, "%1.1f"))
 ax.ticklabel_format(axis='y', style='sci', scilimits=(0,0))
+
+if args.log_scale == True:
+    plt.yscale('log')
 
 plt.plot(deg2d,mem2d_nn, 'cv--', label='MF none')
 if args.custom_model == False:
@@ -465,6 +481,9 @@ ax.xaxis.set_major_locator(MaxNLocator(integer=True))
 # ax.yaxis.set_major_formatter(OOMFormatter(-3, "%1.1f"))
 ax.ticklabel_format(axis='y', style='sci', scilimits=(0,0))
 
+if args.log_scale == True:
+    plt.yscale('log')
+    
 plt.plot(deg3d,mem3d_nn, 'cv--', label='MF none')
 if args.custom_model == False:
     plt.plot(deg3d,mem3d_tr, 'rs--', label='Trilinos')

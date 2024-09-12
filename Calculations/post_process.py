@@ -28,8 +28,10 @@ class OOMFormatter(matplotlib.ticker.ScalarFormatter):
 parser = argparse.ArgumentParser(
     description='Post-Process timing/memory info and plot figures.',
     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument('prefix', metavar='prefix', default='CSL_Munich', nargs='?',
+parser.add_argument('--prefix', metavar='prefix', default='CSL_Munich', 
                     help='A folder to look for benchmark results')
+parser.add_argument('--custom_model', metavar='custom_model', default='false', 
+                    help='Only plot runs with none and acegen caching')
 args = parser.parse_args()
 
 prefix = args.prefix if args.prefix.startswith('/') else os.path.join(os.getcwd(), args.prefix)
@@ -194,8 +196,8 @@ mf3d_data_tensor4_ns.sort(key=lambda tup: tup[0])
 mb3d_data.sort(key=lambda tup: tup[0])
 
 # now get the data for printing
-deg2d = [tup[0] for tup in mf2d_data_scalar]
-deg3d = [tup[0] for tup in mf3d_data_scalar]
+deg2d = [tup[0] for tup in mf2d_data_none]
+deg3d = [tup[0] for tup in mf3d_data_none]
 
 # vmult time per dof
 time2d_tr    = [tup[4][1]/tup[1] for tup in mb2d_data]
@@ -337,13 +339,19 @@ ax = plt.figure().gca()
 #ax.yaxis.set_major_formatter(OOMFormatter(timing_exp, "%1.1f"))
 ax.ticklabel_format(axis='y', style='sci', scilimits=(0,0))
 ax.xaxis.set_major_locator(MaxNLocator(integer=True))
-plt.plot(deg2d,time2d_tr, 'rs--', label='Trilinos')
+
+
 plt.plot(deg2d,time2d_nn, 'cv--', label='MF none')
-# plt.plot(deg2d,time2d_ag, 'g^--', label='MF SS')
-plt.plot(deg2d,time2d_sc, 'bo--', label='MF scalar')
-# plt.plot(deg2d,time2d_t2, 'g^--', label='MF tensor2')
-plt.plot(deg2d,time2d_t4, 'cv--', label='MF tensor4')
-# plt.plot(deg2d,time2d_t4_ns, 'mD--', label='MF tensor4 P')
+if args.custom_model == False:
+    plt.plot(deg2d,time2d_tr, 'rs--', label='Trilinos')
+    plt.plot(deg2d,time2d_sc, 'bo--', label='MF scalar')
+    plt.plot(deg2d,time2d_t4, 'cv--', label='MF tensor4')
+    # plt.plot(deg2d,time2d_t2, 'g^--', label='MF tensor2')
+    # plt.plot(deg2d,time2d_t4_ns, 'mD--', label='MF tensor4 P')
+else:
+    plt.plot(deg2d,time2d_ag, 'g^--', label='MF SS')
+
+
 plt.xlabel('polynomial degree')
 plt.ylabel('vmult wall time (s) / DoF')
 leg = plt.legend(loc='best', ncol=1)
@@ -360,13 +368,18 @@ ax = plt.figure().gca()
 # ax.yaxis.set_major_formatter(OOMFormatter(timing_exp, "%1.1f"))
 ax.ticklabel_format(axis='y', style='sci', scilimits=(0,0))
 ax.xaxis.set_major_locator(MaxNLocator(integer=True))
-plt.plot(deg3d,time3d_tr, 'rs--', label='Trilinos')
+
 plt.plot(deg3d,time3d_nn, 'cv--', label='MF none')
-# plt.plot(deg3d,time3d_ag, 'g^--', label='MF SS')
-plt.plot(deg3d,time3d_sc, 'bo--', label='MF scalar')
-# plt.plot(deg3d,time3d_t2, 'g^--', label='MF tensor2')
-plt.plot(deg3d,time3d_t4, 'cv--', label='MF tensor4')
-# plt.plot(deg3d,time3d_t4_ns, 'mD--', label='MF tensor4 P')
+if args.custom_model == False:
+    plt.plot(deg3d,time3d_tr, 'rs--', label='Trilinos')
+    plt.plot(deg3d,time3d_sc, 'bo--', label='MF scalar')
+    plt.plot(deg3d,time3d_t4, 'cv--', label='MF tensor4')
+    # plt.plot(deg3d,time3d_t2, 'g^--', label='MF tensor2')
+    # plt.plot(deg3d,time3d_t4_ns, 'mD--', label='MF tensor4 P')
+else:
+    plt.plot(deg3d,time3d_ag, 'g^--', label='MF SS')
+
+
 plt.xlabel('polynomial degree')
 plt.ylabel('vmult wall time (s) / DoF')
 leg = plt.legend(loc='best', ncol=1)
@@ -381,13 +394,17 @@ ax = plt.figure().gca()
 # ax.yaxis.set_major_formatter(OOMFormatter(thoughput_exp, "%1.1f"))
 ax.ticklabel_format(axis='y', style='sci', scilimits=(0,0))
 ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+
 plt.plot(deg2d,through2d_nn, 'cv--', label='MF none')
-# plt.plot(deg2d,through2d_ag, 'g^--', label='MF SS')
-plt.plot(deg2d,through2d_tr, 'rs--', label='Trilinos')
-plt.plot(deg2d,through2d_sc, 'bo--', label='MF scalar')
-# plt.plot(deg2d,through2d_t2, 'g^--', label='MF tensor2')
-plt.plot(deg2d,through2d_t4, 'cv--', label='MF tensor4')
-# plt.plot(deg2d,through2d_t4_ns, 'mD--', label='MF tensor4 P')
+if args.custom_model == False:
+    plt.plot(deg2d,through2d_tr, 'rs--', label='Trilinos')
+    plt.plot(deg2d,through2d_sc, 'bo--', label='MF scalar')
+    plt.plot(deg2d,through2d_t4, 'cv--', label='MF tensor4')
+    # plt.plot(deg2d,through2d_t2, 'g^--', label='MF tensor2')
+    # plt.plot(deg2d,through2d_t4_ns, 'mD--', label='MF tensor4 P')
+else:
+    plt.plot(deg2d,through2d_ag, 'g^--', label='MF SS')
+
 plt.xlabel('polynomial degree')
 plt.ylabel('vmult DoF / s')
 # leg = plt.legend(loc='lower right', ncol=1)
@@ -401,13 +418,17 @@ ax = plt.figure().gca()
 # ax.yaxis.set_major_formatter(OOMFormatter(thoughput_exp, "%1.1f"))
 ax.ticklabel_format(axis='y', style='sci', scilimits=(0,0))
 ax.xaxis.set_major_locator(MaxNLocator(integer=True))
-plt.plot(deg3d,through3d_tr, 'rs--', label='Trilinos')
+
 plt.plot(deg3d,through3d_nn, 'cv--', label='MF none')
-# plt.plot(deg3d,through3d_ag, 'g^--', label='MF SS')
-plt.plot(deg3d,through3d_sc, 'bo--', label='MF scalar')
-# plt.plot(deg3d,through3d_t2, 'g^--', label='MF tensor2')
-plt.plot(deg3d,through3d_t4, 'cv--', label='MF tensor4')
-# plt.plot(deg3d,through3d_t4_ns, 'mD--', label='MF tensor4 P')
+if args.custom_model == False:
+    plt.plot(deg3d,through3d_tr, 'rs--', label='Trilinos')
+    plt.plot(deg3d,through3d_sc, 'bo--', label='MF scalar')
+    plt.plot(deg3d,through3d_t4, 'cv--', label='MF tensor4')
+    # plt.plot(deg3d,through3d_t2, 'g^--', label='MF tensor2')
+    # plt.plot(deg3d,through3d_t4_ns, 'mD--', label='MF tensor4 P')
+else:
+    plt.plot(deg3d,through3d_ag, 'g^--', label='MF SS')
+
 plt.xlabel('polynomial degree')
 plt.ylabel('vmult DoF / s')
 # leg = plt.legend(loc='lower right', ncol=1)
@@ -421,13 +442,16 @@ ax.xaxis.set_major_locator(MaxNLocator(integer=True))
 # ax.yaxis.set_major_formatter(OOMFormatter(-3, "%1.1f"))
 ax.ticklabel_format(axis='y', style='sci', scilimits=(0,0))
 
-plt.plot(deg2d,mem2d_tr, 'rs--', label='Trilinos')
 plt.plot(deg2d,mem2d_nn, 'cv--', label='MF none')
-# plt.plot(deg2d,mem2d_ag, 'g^--', label='MF SS')
-plt.plot(deg2d,mem2d_sc, 'bo--', label='MF scalar')
-# plt.plot(deg2d,mem2d_t2, 'g^--', label='MF tensor2')
-plt.plot(deg2d,mem2d_t4, 'cv--', label='MF tensor4')
-# plt.plot(deg2d,mem2d_t4_ns, 'mD--', label='MF tensor4 P')
+if args.custom_model == False:
+    plt.plot(deg2d,mem2d_tr, 'rs--', label='Trilinos')
+    plt.plot(deg2d,mem2d_sc, 'bo--', label='MF scalar')
+    plt.plot(deg2d,mem2d_t4, 'cv--', label='MF tensor4')
+    # plt.plot(deg2d,mem2d_t2, 'g^--', label='MF tensor2')
+    # plt.plot(deg2d,mem2d_t4_ns, 'mD--', label='MF tensor4 P')
+else:
+    plt.plot(deg2d,mem2d_ag, 'g^--', label='MF SS')
+
 plt.xlabel('polynomial degree')
 plt.ylabel('memory (Mb) / DoF')
 # leg = plt.legend(loc='best', ncol=1)
@@ -441,13 +465,16 @@ ax.xaxis.set_major_locator(MaxNLocator(integer=True))
 # ax.yaxis.set_major_formatter(OOMFormatter(-3, "%1.1f"))
 ax.ticklabel_format(axis='y', style='sci', scilimits=(0,0))
 
-plt.plot(deg3d,mem3d_tr, 'rs--', label='Trilinos')
 plt.plot(deg3d,mem3d_nn, 'cv--', label='MF none')
-# plt.plot(deg3d,mem3d_ag, 'g^--', label='MF SS')
-plt.plot(deg3d,mem3d_sc, 'bo--', label='MF scalar')
-# plt.plot(deg3d,mem3d_t2, 'g^--', label='MF tensor2')
-plt.plot(deg3d,mem3d_t4, 'cv--', label='MF tensor4')
-# plt.plot(deg3d,mem3d_t4_ns, 'mD--', label='MF tensor4 P')
+if args.custom_model == False:
+    plt.plot(deg3d,mem3d_tr, 'rs--', label='Trilinos')
+    plt.plot(deg3d,mem3d_sc, 'bo--', label='MF scalar')
+    plt.plot(deg3d,mem3d_t4, 'cv--', label='MF tensor4')
+    # plt.plot(deg3d,mem3d_t2, 'g^--', label='MF tensor2')
+    # plt.plot(deg3d,mem3d_t4_ns, 'mD--', label='MF tensor4 P')
+else:
+    plt.plot(deg3d,mem3d_ag, 'g^--', label='MF SS')
+
 plt.xlabel('polynomial degree')
 plt.ylabel('memory (Mb) / DoF')
 # leg = plt.legend(loc='best', ncol=1)
@@ -462,6 +489,11 @@ plt.savefig(fig_prefix + 'memory3d.pdf', format='pdf', bbox_inches = 'tight')
 #
 
 # clear
+
+
+if args.custom_model:
+    exit()
+
 plt.clf()
 ax = plt.figure().gca()
 plt.yscale('log', base=10)

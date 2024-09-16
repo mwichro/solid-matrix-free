@@ -29,7 +29,7 @@ namespace CBRT
    */
   template <typename Number>
   constexpr inline Number
-  halley(const Number &a, int iterations = 1)
+  halley(const Number &a, int iterations = 2)
   {
     Number       x    = inital_guess(a);
     const Number two  = Number(2.);

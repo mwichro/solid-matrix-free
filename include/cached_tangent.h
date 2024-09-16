@@ -38,7 +38,6 @@ namespace Cached
     const ArrayView<const Number> &                cacheIn,
     Tensor<2, dim, Number> &                       gradientOut)
   {
-    AssertDimension(n_cached, cacheIn.size());
     Number acegen_scratch__107__, acegen_scratch__108__, acegen_scratch__109__,
       acegen_scratch__121__, acegen_scratch__122__, acegen_scratch__123__,
       acegen_scratch__16__, acegen_scratch__17__, acegen_scratch__18__,
@@ -236,7 +235,6 @@ namespace Cached
     const ArrayView<const Number> &                cacheIn,
     Tensor<2, dim, Number> &                       gradientOut)
   {
-    AssertDimension(n_cached, cacheIn.size());
     Number acegen_scratch__10__, acegen_scratch__11__, acegen_scratch__12__,
       acegen_scratch__14__, acegen_scratch__15__, acegen_scratch__17__,
       acegen_scratch__19__, acegen_scratch__20__, acegen_scratch__21__,

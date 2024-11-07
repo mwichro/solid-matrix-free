@@ -19,6 +19,15 @@ Total size of C code            : 365 bytes */
 
 using namespace dealii;
 
+
+template <typename Number>
+Number
+fastlog(const Number &x)
+{
+  return ((Number(-1) + x) * (Number(11) + x * (Number(38) + Number(11) * x))) /
+         (Number(3) * (Number(1) + x) * (Number(1) + x * (Number(8) + x)));
+}
+
 template <int DIMENSION>
 struct SolidModel
 {
@@ -179,7 +188,7 @@ SolidModel<2>::tangent(const Tensor<2, dim, Number> &graduIn,
   acegen_scratch__180__ = 2e0 * acegen_scratch__36__;
   acegen_scratch__35__  = acegen_scratch__181__ * acegen_scratch__23__;
   acegen_scratch__179__ = 2e0 * acegen_scratch__35__;
-  acegen_scratch__39__  = acegen_scratch__177__ * log(acegen_scratch__171__);
+  acegen_scratch__39__ = acegen_scratch__177__ * fastlog(acegen_scratch__171__);
   acegen_scratch__178__ = -acegen_scratch__13__ + acegen_scratch__39__;
   acegen_scratch__182__ = (acegen_scratch__174__ * acegen_scratch__178__) / 2e0;
   acegen_scratch__159__ =
@@ -599,8 +608,9 @@ SolidModel<3>::tangent(const Tensor<2, dim, Number> &graduIn,
   acegen_scratch__410__ =
     (acegen_scratch__26__ * acegen_scratch__376__) /
     ((acegen_scratch__51__ * acegen_scratch__51__) * acegen_scratch__56__);
-  acegen_scratch__54__ = -acegen_scratch__25__ +
-                         2e0 * acegen_scratch__26__ * log(acegen_scratch__51__);
+  acegen_scratch__54__ =
+    -acegen_scratch__25__ +
+    2e0 * acegen_scratch__26__ * fastlog(acegen_scratch__51__);
   acegen_scratch__409__ = -((acegen_scratch__376__ * acegen_scratch__54__) /
                             (acegen_scratch__56__ * acegen_scratch__56__));
   acegen_scratch__382__ = (acegen_scratch__409__ + acegen_scratch__410__) / 2e0;

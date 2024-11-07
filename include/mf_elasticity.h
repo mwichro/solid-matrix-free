@@ -1216,6 +1216,7 @@ namespace Cook_Membrane
         // \varDelta \mathbf{\Xi}$...
         solve_nonlinear_timestep();
         solution_n += solution_delta;
+        solution_n.update_ghost_values();
 
         // ...and plot the results before moving on happily to the next time
         // step:
@@ -2458,6 +2459,17 @@ namespace Cook_Membrane
               LIKWID_MARKER_STOP("vmult_MF_cell_RWSF");
             }
 
+
+          // 3.4 Local loop with QD only
+          MPI_Barrier(mpi_communicator);
+          for (unsigned int i = 0; i < n_times; ++i)
+            {
+              TimerOutput::Scope t(timer, "vmult (MF) QD");
+              LIKWID_MARKER_START("vmult_MF_cell_QD");
+              mf_nh_operator.template vmult<MFMask::RWSF>(dst_mf, src);
+              LIKWID_MARKER_STOP("vmult_MF_cell_QD");
+            }
+
           MPI_Barrier(mpi_communicator);
           for (unsigned int i = 0; i < n_times; ++i)
             {
@@ -2725,6 +2737,7 @@ namespace Cook_Membrane
   {
     solution_total.equ(1, solution_n);
     solution_total += solution_delta;
+    solution_total.update_ghost_values();
   }
 
   // Note that we must ensure that

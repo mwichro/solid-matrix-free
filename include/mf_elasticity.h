@@ -1590,7 +1590,7 @@ namespace Cook_Membrane
       }
     else
       {
-        Assert(false, ExcNotImplemented())
+        Assert(false, ExcNotImplemented());
       }
 
     triangulation.refine_global(parameters.n_global_refinement);

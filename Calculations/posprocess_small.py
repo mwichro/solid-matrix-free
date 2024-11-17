@@ -14,7 +14,6 @@ parser.add_argument('--prefix', metavar='prefix', default='CSL_Munich',
                     help='A folder to look for benchmark results')
 parser.add_argument('--custom_model', metavar='custom_model', default='false', 
                     help='Only plot runs with none and acegen caching')
-parser.add_argument('--likwid', help='Posprocess LIKWID results', action="store_true")
 args = parser.parse_args()
 
 prefix = args.prefix if args.prefix.startswith('/') else os.path.join(os.getcwd(), args.prefix)
@@ -27,7 +26,6 @@ custom_model = True if args.custom_model=="true" else False
 
 
 print(' Custom model: {0}'.format(custom_model))
-print(' LIKWID: {0}'.format(args.likwid))
 
 print ('Gather data from {0}'.format(prefix))
 print ('found {0} files'.format(len(files)))
@@ -114,9 +112,6 @@ for f in files:
         if start_line in line:
             print ('dim={0} p={1} q={2} cells={3} dofs={4} tr_memory={5} mf_memory={6} cg_it={7} caching={8} file={9}'.format(dim, p, q, cells, dofs, tr_memory, mf_memory, cg_iterations, cachings, f))
             ready = True
-        if not args.likwid:
-            print("WITH LIKWID")
-            continue
 
         if ready:
             # we could have sections starting from the same part
@@ -139,16 +134,18 @@ for f in files:
         mf3d_data.append(tp)
 
 print("2D Data:")
-headers = ["p", "cachings", "dofs", "mf_memory"] 
+headers = ["p", "cachings", "dofs", "mf_memory", "vmult_time [ms]"] 
 print("\t".join(headers))
 for data in mf2d_data:
     row = list(data )
-    print("\t".join(map(str, row)))
+    row[-1] = row[-1] * 1.e3
+    print("{:<10} {:<15} {:<10} {:<10}  {:<14.4f}".format(*row))
 
 
 print("3D Data:")
-headers = ["p", "cachings", "dofs", "mf_memory"] 
+headers = ["p", "cachings", "dofs", "mf_memory", "vmult_time [ms]"] 
 print("\t".join(headers))
 for data in mf3d_data:
-    row = list(data )
-    print("\t".join(map(str, row)))
+    row = list(data)
+    row[-1] = row[-1] * 1.e3
+    print("{:<10} {:<15} {:<10} {:<10} {:<14.4f}".format(*row))

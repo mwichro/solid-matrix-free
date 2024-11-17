@@ -322,6 +322,7 @@ private:
     tensor4,
     tensor4_ns,
     acegen_cached,
+    acegen_actual,
     invalid
   };
   MFCaching mf_caching;
@@ -473,6 +474,11 @@ NeoHookOperator<dim, fe_degree, n_q_points_1d, number>::initialize(
   else if (caching == "acegen_cached")
     {
       mf_caching = MFCaching::acegen_cached;
+      cached_acegen.reinit(n_cells, phi.n_q_points, SolidModel<dim>::n_cached);
+    }
+  else if (caching == "acegen_actual")
+    {
+      mf_caching = MFCaching::acegen_actual;
       cached_acegen.reinit(n_cells, phi.n_q_points, SolidModel<dim>::n_cached);
     }
   else if (caching == "none")
@@ -645,6 +651,19 @@ NeoHookOperator<dim, fe_degree, n_q_points_1d, number>::cache()
                     acegen_cache_view,
                     cell_mat->mu,
                     cell_mat->lambda);
+                }
+              else if (mf_caching == MFCaching::acegen_actual)
+                {
+                  ArrayView<VectorizedArray<number>> acegen_cache_view(
+                    &cached_acegen(cell, q, 0), SolidModel<dim>::n_cached);
+                  Tensor<2, dim, VectorizedArray<number>> dummy2;
+
+                  SolidModel<dim>::template cache_deformed<
+                    VectorizedArray<number>>(phi_reference.get_gradient(q),
+                                             dummy2,
+                                             acegen_cache_view,
+                                             cell_mat->mu,
+                                             cell_mat->lambda);
                 }
               else
                 {
@@ -1418,6 +1437,23 @@ NeoHookOperator<dim, fe_degree, n_q_points_1d, number>::do_operation_on_cell(
                 gradientOut);
 
 
+              phi_current.submit_gradient(gradientOut, q);
+            }
+        }
+      else if (cell_mat->formulation == 1 &&
+               mf_caching == MFCaching::acegen_actual)
+        {
+          //  Automatically generated code
+          // AceGEN
+          // FIXME!!!
+          for (unsigned int q = 0; q < phi_current.n_q_points; ++q)
+            {
+              const ArrayView<const VectorizedArray<number>> acegen_cache_view(
+                &cached_acegen(cell, q, 0), SolidModel<dim>::n_cached);
+
+              Tensor<2, dim, NumberType> gradientOut;
+              Cached::Tangent<dim>::template evaluate_deformed<NumberType>(
+                phi_current.get_gradient(q), acegen_cache_view, gradientOut);
               phi_current.submit_gradient(gradientOut, q);
             }
         }

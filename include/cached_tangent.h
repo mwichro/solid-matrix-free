@@ -25,6 +25,17 @@ namespace Cached
                        const Tensor<2, dim, Number> &                 gradduIn,
                        const ArrayView<const Number> &                cacheIn,
                        Tensor<2, dim, Number> &gradientOut);
+
+    /**
+     * Evaluates gradient contribution gradientOut in deformend configuration
+     * gradduIn gradient of current iterate and
+     * cacheIn  cached data
+     */
+    template <typename Number>
+    static inline void
+    evaluate_deformed(const Tensor<2, dim, Number> & gradduIn,
+                      const ArrayView<const Number> &cacheIn,
+                      Tensor<2, dim, Number> &       gradientOut);
   };
 
 
@@ -221,6 +232,135 @@ namespace Cached
 
 
 
+  template <>
+  template <typename Number>
+  inline void
+  Tangent<3>::evaluate_deformed(const Tensor<2, dim, Number> & gradduIn,
+                                const ArrayView<const Number> &cacheIn,
+                                Tensor<2, dim, Number> &       gradientOut)
+  {
+    Number acegen_scratch__1__, acegen_scratch__11__, acegen_scratch__12__,
+      acegen_scratch__13__, acegen_scratch__14__, acegen_scratch__15__,
+      acegen_scratch__17__, acegen_scratch__18__, acegen_scratch__19__,
+      acegen_scratch__2__, acegen_scratch__20__, acegen_scratch__22__,
+      acegen_scratch__23__, acegen_scratch__24__, acegen_scratch__26__,
+      acegen_scratch__27__, acegen_scratch__29__, acegen_scratch__3__,
+      acegen_scratch__31__, acegen_scratch__32__, acegen_scratch__33__,
+      acegen_scratch__34__, acegen_scratch__35__, acegen_scratch__36__,
+      acegen_scratch__4__, acegen_scratch__5__, acegen_scratch__55__,
+      acegen_scratch__56__, acegen_scratch__57__, acegen_scratch__6__,
+      acegen_scratch__64__, acegen_scratch__65__, acegen_scratch__66__,
+      acegen_scratch__7__, acegen_scratch__8__, acegen_scratch__9__;
+    acegen_scratch__1__  = gradduIn[0][0];
+    acegen_scratch__2__  = gradduIn[0][1];
+    acegen_scratch__3__  = gradduIn[0][2];
+    acegen_scratch__4__  = gradduIn[1][0];
+    acegen_scratch__5__  = gradduIn[1][1];
+    acegen_scratch__6__  = gradduIn[1][2];
+    acegen_scratch__7__  = gradduIn[2][0];
+    acegen_scratch__8__  = gradduIn[2][1];
+    acegen_scratch__9__  = gradduIn[2][2];
+    acegen_scratch__11__ = cacheIn[1];
+    acegen_scratch__12__ = cacheIn[2];
+    acegen_scratch__13__ = cacheIn[3];
+    acegen_scratch__14__ = cacheIn[4];
+    acegen_scratch__15__ = cacheIn[5];
+    acegen_scratch__17__ = cacheIn[7];
+    acegen_scratch__18__ = cacheIn[8];
+    acegen_scratch__19__ = cacheIn[9];
+    acegen_scratch__20__ = cacheIn[10];
+    acegen_scratch__22__ = cacheIn[12];
+    acegen_scratch__23__ = cacheIn[13];
+    acegen_scratch__24__ = cacheIn[14];
+    acegen_scratch__26__ = cacheIn[16];
+    acegen_scratch__27__ = cacheIn[17];
+    acegen_scratch__29__ = cacheIn[19];
+    acegen_scratch__31__ = cacheIn[21];
+    acegen_scratch__32__ = cacheIn[22];
+    acegen_scratch__33__ = cacheIn[23];
+    acegen_scratch__34__ = cacheIn[24];
+    acegen_scratch__35__ = cacheIn[25];
+    acegen_scratch__36__ = cacheIn[26];
+    acegen_scratch__55__ =
+      0.7071067811865476e0 * (acegen_scratch__6__ + acegen_scratch__8__);
+    acegen_scratch__56__ =
+      0.7071067811865476e0 * (acegen_scratch__3__ + acegen_scratch__7__);
+    acegen_scratch__57__ =
+      0.7071067811865476e0 * (acegen_scratch__2__ + acegen_scratch__4__);
+    acegen_scratch__64__ =
+      0.7071067811865476e0 * (acegen_scratch__1__ * acegen_scratch__15__ +
+                              acegen_scratch__20__ * acegen_scratch__5__ +
+                              acegen_scratch__27__ * acegen_scratch__55__ +
+                              acegen_scratch__29__ * acegen_scratch__56__ +
+                              acegen_scratch__24__ * acegen_scratch__9__ +
+                              acegen_scratch__57__ * cacheIn[20]);
+    acegen_scratch__65__ =
+      0.7071067811865476e0 * (acegen_scratch__1__ * acegen_scratch__14__ +
+                              acegen_scratch__19__ * acegen_scratch__5__ +
+                              acegen_scratch__26__ * acegen_scratch__55__ +
+                              acegen_scratch__29__ * acegen_scratch__57__ +
+                              acegen_scratch__23__ * acegen_scratch__9__ +
+                              acegen_scratch__56__ * cacheIn[18]);
+    acegen_scratch__66__ =
+      0.7071067811865476e0 * (acegen_scratch__1__ * acegen_scratch__13__ +
+                              acegen_scratch__18__ * acegen_scratch__5__ +
+                              acegen_scratch__26__ * acegen_scratch__56__ +
+                              acegen_scratch__27__ * acegen_scratch__57__ +
+                              acegen_scratch__22__ * acegen_scratch__9__ +
+                              acegen_scratch__55__ * cacheIn[15]);
+    gradientOut[0][0] =
+      acegen_scratch__2__ * acegen_scratch__32__ +
+      acegen_scratch__3__ * acegen_scratch__33__ +
+      acegen_scratch__11__ * acegen_scratch__5__ +
+      acegen_scratch__13__ * acegen_scratch__55__ +
+      acegen_scratch__14__ * acegen_scratch__56__ +
+      acegen_scratch__15__ * acegen_scratch__57__ +
+      acegen_scratch__12__ * acegen_scratch__9__ +
+      acegen_scratch__1__ * (acegen_scratch__31__ + cacheIn[0]);
+    gradientOut[0][1] = acegen_scratch__1__ * acegen_scratch__32__ +
+                        acegen_scratch__2__ * acegen_scratch__34__ +
+                        acegen_scratch__3__ * acegen_scratch__35__ +
+                        acegen_scratch__64__;
+    gradientOut[0][2] = acegen_scratch__1__ * acegen_scratch__33__ +
+                        acegen_scratch__2__ * acegen_scratch__35__ +
+                        acegen_scratch__3__ * acegen_scratch__36__ +
+                        acegen_scratch__65__;
+    gradientOut[1][0] = acegen_scratch__31__ * acegen_scratch__4__ +
+                        acegen_scratch__32__ * acegen_scratch__5__ +
+                        acegen_scratch__33__ * acegen_scratch__6__ +
+                        acegen_scratch__64__;
+    gradientOut[1][1] =
+      acegen_scratch__1__ * acegen_scratch__11__ +
+      acegen_scratch__32__ * acegen_scratch__4__ +
+      acegen_scratch__18__ * acegen_scratch__55__ +
+      acegen_scratch__19__ * acegen_scratch__56__ +
+      acegen_scratch__20__ * acegen_scratch__57__ +
+      acegen_scratch__35__ * acegen_scratch__6__ +
+      acegen_scratch__17__ * acegen_scratch__9__ +
+      acegen_scratch__5__ * (acegen_scratch__34__ + cacheIn[6]);
+    gradientOut[1][2] = acegen_scratch__33__ * acegen_scratch__4__ +
+                        acegen_scratch__35__ * acegen_scratch__5__ +
+                        acegen_scratch__36__ * acegen_scratch__6__ +
+                        acegen_scratch__66__;
+    gradientOut[2][0] = acegen_scratch__65__ +
+                        acegen_scratch__31__ * acegen_scratch__7__ +
+                        acegen_scratch__32__ * acegen_scratch__8__ +
+                        acegen_scratch__33__ * acegen_scratch__9__;
+    gradientOut[2][1] = acegen_scratch__66__ +
+                        acegen_scratch__32__ * acegen_scratch__7__ +
+                        acegen_scratch__34__ * acegen_scratch__8__ +
+                        acegen_scratch__35__ * acegen_scratch__9__;
+    gradientOut[2][2] =
+      acegen_scratch__1__ * acegen_scratch__12__ +
+      acegen_scratch__17__ * acegen_scratch__5__ +
+      acegen_scratch__22__ * acegen_scratch__55__ +
+      acegen_scratch__23__ * acegen_scratch__56__ +
+      acegen_scratch__24__ * acegen_scratch__57__ +
+      acegen_scratch__33__ * acegen_scratch__7__ +
+      acegen_scratch__35__ * acegen_scratch__8__ +
+      acegen_scratch__9__ * (acegen_scratch__36__ + cacheIn[11]);
+  }
+
   // =====
   // dim=2
   // =====
@@ -293,6 +433,14 @@ namespace Cached
                         acegen_scratch__24__ * acegen_scratch__38__;
   }
 
+
+  template <>
+  template <typename Number>
+  inline void
+  Tangent<2>::evaluate_deformed(const Tensor<2, dim, Number> & gradduIn,
+                                const ArrayView<const Number> &cacheIn,
+                                Tensor<2, dim, Number> &       gradientOut)
+  {}
 
 
 } // namespace Cached

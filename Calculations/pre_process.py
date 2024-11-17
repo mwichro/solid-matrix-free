@@ -19,9 +19,13 @@ parser.add_argument('--mpirun', metavar='mpirun', default='mpirun -np 32',
                     help='mpi run command with cores')
 parser.add_argument('--likwid', help='Prepare LIKWID run', action="store_true")
 parser.add_argument('--single', help='LIKWID single MPI core run', action="store_true")
-parser.add_argument('--custom_model', default='false', help='Run only solvers that are implemented for custom models.')
+parser.add_argument('--custom_model', help='Run only solvers that are implemented for custom models.', action="store_true")
+parser.add_argument('--small', help='Prepare small run', action="store_true")
 
 args = parser.parse_args()
+print("Arguments:")
+for arg in vars(args):
+  print(f"{arg}: {getattr(args, arg)}")
 
 # parameters (list of tuples):
 
@@ -49,6 +53,11 @@ poly_quad_ref_dim_likwid = [
     (4,5,2,3),
 ]
 
+poly_quad_ref_dim_small = [
+    (2,3,1,2),
+    (2,3,1,3)
+]
+
 # Solvers (type, preconditioner and caching)
 # solvers = [
 #     ('MF_CG', 'gmg', 'scalar'),
@@ -65,6 +74,7 @@ solvers = [
     ('MF_CG', 'gmg', 'none'),
     ('MF_CG', 'gmg', 'tensor2'),
     ('MF_CG', 'gmg', 'acegen_cached'),
+    ('MF_CG', 'gmg', 'acegen_actual'),
     ('MF_CG', 'gmg', 'tensor4_ns'),
     ('CG',    'amg', 'scalar'),
     ('MF_CG', 'gmg', 'tensor4')
@@ -74,6 +84,7 @@ solvers = [
 solvers_custom= [
     ('MF_CG', 'gmg', 'none'),
     ('MF_CG', 'gmg', 'acegen_cached'),
+    ('MF_CG', 'gmg', 'acegen_actual'),
 ]
 
 # solvers_likwid = [
@@ -91,6 +102,7 @@ solvers_likwid = [
     ('MF_CG', 'gmg', 'none'),
     ('MF_CG', 'gmg', 'tensor2'),
     ('MF_CG', 'gmg', 'acegen_cached'),
+    ('MF_CG', 'gmg', 'acegen_actual'),
     ('MF_CG', 'gmg', 'tensor4_ns'),
     ('MF_CG', 'gmg', 'tensor4')
 ]
@@ -109,14 +121,22 @@ solvers_likwid = [
 # MPI run command (override if use LIKWID)
 mpirun_args = args.mpirun
 if args.likwid:
-  mpirun_args = 'likwid-mpirun -np {0} -nperdomain S:{0} -g MEM_DP -m'.format(1 if args.single else 16)
+  mpirun_args = 'likwid-mpirun -np {0} -nperdomain S:{0} -g MEM_DP -m'.format(1 if args.single else 32)
 
+if args.small:
+  poly_quad_ref_dim = poly_quad_ref_dim_small
+  mpirun_args = 'mpirun -np {0}'.format(1)
+  if args.likwid:
+    mpirun_args = 'likwid-mpirun -np {0} -nperdomain S:{0} -g FLOPS_DP -m'.format(1)
+    
 mpicmd = mpirun_args + ' ' + args.prefix + 'main ' + args.calc + '{0}.prm 2>&1 | tee {0}.toutput\nmv {0}.toutput {1}{0}/{0}.toutput\n\n'
+print ('mpicmd: {0}'.format(mpicmd))
 
 # if run likwid, do a smaller subset of test cases:
-if args.likwid:
+if args.likwid and not args.small:
   solvers = solvers_likwid
   poly_quad_ref_dim = poly_quad_ref_dim_likwid
+
 
 # if run for a custom model, run only those that are implement:
 if args.custom_model:
@@ -196,6 +216,12 @@ if args.likwid:
   if args.single:
     out_dir = out_dir + '_1proc'
 
+if args.small:
+  out_dir = out_dir + '_small'
+  if args.likwid:
+    out_dir = 'LIKWID_' + out_dir
+
+
 if out_dir and not out_dir.endswith('/'):
     out_dir = out_dir + '/'
 
@@ -227,12 +253,12 @@ for pqrd in poly_quad_ref_dim:
             dirichlet_mask[pqrd[3]],
             neumann_bc[pqrd[3]],
             'false',
-            0.2 if args.likwid else 1.0  # make sure we do 1 fake solution step
+            0.2 if args.likwid or args.small else 1.0  # make sure we do 1 fake solution step
         ))
         filenames.append(name)
 
 # two more runs just to illustrate the deformed mesh
-if not args.likwid:
+if not args.likwid and not args.small:
   for pqrd in [(2,3,2,2),(2,3,2,3)]:
       for s in [('MF_CG', 'gmg', 'none')]:
           name = '__' + base_name + '_{6}d_p{0}q{1}r{2}_{3}_{4}_{5}'.format(pqrd[0],pqrd[1],pqrd[2],s[0],s[1],s[2],pqrd[3])

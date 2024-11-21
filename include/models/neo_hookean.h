@@ -400,7 +400,126 @@ SolidModel<2>::cache_deformed(const Tensor<2, dim, Number> &graduIn,
                               const Number &                mu,
                               const Number &                lambda)
 {
-  AssertThrow(false, ExcNotImplemented());
+  Number acegen_scratch__10__, acegen_scratch__109__, acegen_scratch__110__,
+    acegen_scratch__111__, acegen_scratch__112__, acegen_scratch__113__,
+    acegen_scratch__114__, acegen_scratch__115__, acegen_scratch__116__,
+    acegen_scratch__120__, acegen_scratch__122__, acegen_scratch__14__,
+    acegen_scratch__15__, acegen_scratch__21__, acegen_scratch__22__,
+    acegen_scratch__24__, acegen_scratch__25__, acegen_scratch__27__,
+    acegen_scratch__30__, acegen_scratch__31__, acegen_scratch__33__,
+    acegen_scratch__34__, acegen_scratch__35__, acegen_scratch__36__,
+    acegen_scratch__37__, acegen_scratch__39__, acegen_scratch__40__,
+    acegen_scratch__41__, acegen_scratch__46__, acegen_scratch__47__,
+    acegen_scratch__5__, acegen_scratch__50__, acegen_scratch__51__,
+    acegen_scratch__6__, acegen_scratch__65__, acegen_scratch__66__,
+    acegen_scratch__67__, acegen_scratch__68__, acegen_scratch__69__,
+    acegen_scratch__7__, acegen_scratch__70__, acegen_scratch__71__,
+    acegen_scratch__72__, acegen_scratch__75__, acegen_scratch__76__,
+    acegen_scratch__77__, acegen_scratch__78__, acegen_scratch__79__,
+    acegen_scratch__8__, acegen_scratch__9__;
+  acegen_scratch__5__   = mu;
+  acegen_scratch__6__   = lambda;
+  acegen_scratch__113__ = 2e0 * acegen_scratch__6__;
+  acegen_scratch__7__   = 1e0 + graduIn[0][0];
+  acegen_scratch__71__  = (acegen_scratch__7__ * acegen_scratch__7__);
+  acegen_scratch__8__   = graduIn[0][1];
+  acegen_scratch__72__  = (acegen_scratch__8__ * acegen_scratch__8__);
+  acegen_scratch__9__   = graduIn[1][0];
+  acegen_scratch__76__  = (acegen_scratch__9__ * acegen_scratch__9__);
+  acegen_scratch__10__  = 1e0 + graduIn[1][1];
+  acegen_scratch__120__ = acegen_scratch__10__ * acegen_scratch__9__;
+  acegen_scratch__109__ =
+    acegen_scratch__120__ + acegen_scratch__7__ * acegen_scratch__8__;
+  acegen_scratch__77__  = (acegen_scratch__10__ * acegen_scratch__10__);
+  acegen_scratch__14__  = acegen_scratch__71__ + acegen_scratch__76__;
+  acegen_scratch__15__  = acegen_scratch__72__ + acegen_scratch__77__;
+  acegen_scratch__110__ = -0.7071067811865476e0 * acegen_scratch__109__;
+  acegen_scratch__112__ = 1e0 * acegen_scratch__110__;
+  acegen_scratch__21__  = -(acegen_scratch__109__ * acegen_scratch__109__) +
+                         acegen_scratch__14__ * acegen_scratch__15__;
+  acegen_scratch__75__  = 1e0 / sqrt(acegen_scratch__21__);
+  acegen_scratch__40__  = 1e0 / (acegen_scratch__21__ * acegen_scratch__21__);
+  acegen_scratch__41__  = -(acegen_scratch__14__ * acegen_scratch__40__);
+  acegen_scratch__39__  = -(acegen_scratch__15__ * acegen_scratch__40__);
+  acegen_scratch__111__ = acegen_scratch__39__ / 2e0;
+  acegen_scratch__46__  = -0.5e0 * 1e0 / acegen_scratch__21__;
+  acegen_scratch__47__ =
+    acegen_scratch__111__ * acegen_scratch__14__ - acegen_scratch__46__;
+  acegen_scratch__25__  = acegen_scratch__112__ / acegen_scratch__21__;
+  acegen_scratch__24__  = -(acegen_scratch__14__ * acegen_scratch__46__);
+  acegen_scratch__115__ = 2e0 * acegen_scratch__24__;
+  acegen_scratch__51__  = acegen_scratch__113__ * acegen_scratch__24__;
+  acegen_scratch__22__  = -(acegen_scratch__15__ * acegen_scratch__46__);
+  acegen_scratch__114__ = 2e0 * acegen_scratch__22__;
+  acegen_scratch__50__  = acegen_scratch__113__ * acegen_scratch__22__;
+  acegen_scratch__27__  = acegen_scratch__6__ * log(acegen_scratch__21__);
+  acegen_scratch__116__ = acegen_scratch__27__ - acegen_scratch__5__;
+  acegen_scratch__30__  = acegen_scratch__114__ * acegen_scratch__27__ +
+                         (1e0 - acegen_scratch__114__) * acegen_scratch__5__;
+  acegen_scratch__31__ = acegen_scratch__115__ * acegen_scratch__27__ +
+                         (1e0 - acegen_scratch__115__) * acegen_scratch__5__;
+  acegen_scratch__33__ =
+    0.1414213562373095e1 * acegen_scratch__116__ * acegen_scratch__25__;
+  acegen_scratch__34__ = acegen_scratch__30__ * acegen_scratch__7__ +
+                         acegen_scratch__33__ * acegen_scratch__8__;
+  acegen_scratch__35__ = acegen_scratch__33__ * acegen_scratch__7__ +
+                         acegen_scratch__31__ * acegen_scratch__8__;
+  acegen_scratch__36__ = acegen_scratch__10__ * acegen_scratch__33__ +
+                         acegen_scratch__30__ * acegen_scratch__9__;
+  acegen_scratch__37__ = acegen_scratch__10__ * acegen_scratch__31__ +
+                         acegen_scratch__33__ * acegen_scratch__9__;
+  acegen_scratch__65__ = 4e0 * (acegen_scratch__111__ * acegen_scratch__116__ *
+                                  acegen_scratch__15__ +
+                                acegen_scratch__22__ * acegen_scratch__50__);
+  acegen_scratch__66__ = 4e0 * (acegen_scratch__116__ * acegen_scratch__47__ +
+                                acegen_scratch__24__ * acegen_scratch__50__);
+  acegen_scratch__67__ = 4e0 * (acegen_scratch__110__ * acegen_scratch__116__ *
+                                  acegen_scratch__39__ +
+                                acegen_scratch__25__ * acegen_scratch__50__);
+  acegen_scratch__79__ =
+    0.1414213562373095e1 * acegen_scratch__67__ * acegen_scratch__8__;
+  acegen_scratch__68__ =
+    4e0 *
+    ((acegen_scratch__116__ * acegen_scratch__14__ * acegen_scratch__41__) /
+       2e0 +
+     acegen_scratch__24__ * acegen_scratch__51__);
+  acegen_scratch__69__ = 4e0 * (acegen_scratch__110__ * acegen_scratch__116__ *
+                                  acegen_scratch__41__ +
+                                acegen_scratch__25__ * acegen_scratch__51__);
+  acegen_scratch__78__ =
+    0.1414213562373095e1 * acegen_scratch__69__ * acegen_scratch__7__;
+  acegen_scratch__70__ = 4e0 * acegen_scratch__116__ *
+                           (0.1414213562373095e1 * acegen_scratch__109__ *
+                              acegen_scratch__112__ * acegen_scratch__40__ +
+                            acegen_scratch__46__) -
+                         8e0 * acegen_scratch__47__ * acegen_scratch__6__;
+  acegen_scratch__122__ =
+    acegen_scratch__75__ *
+    (acegen_scratch__65__ * Power(acegen_scratch__7__, 4) +
+     2e0 * (acegen_scratch__66__ + acegen_scratch__70__) *
+       acegen_scratch__71__ * acegen_scratch__72__ +
+     2e0 * Power(acegen_scratch__7__, 3) * acegen_scratch__79__ +
+     2e0 * acegen_scratch__78__ * Power(acegen_scratch__8__, 3) +
+     acegen_scratch__68__ * Power(acegen_scratch__8__, 4));
+  gradientOut[0][0] = acegen_scratch__34__;
+  gradientOut[0][1] = acegen_scratch__35__;
+  gradientOut[1][0] = acegen_scratch__36__;
+  gradientOut[1][1] = acegen_scratch__37__;
+  cacheOut[0]       = acegen_scratch__122__;
+  cacheOut[1]       = acegen_scratch__113__ * acegen_scratch__75__;
+  cacheOut[2]       = 0e0;
+  cacheOut[3]       = acegen_scratch__122__;
+  cacheOut[4]       = 0e0;
+  cacheOut[5]       = -2e0 * acegen_scratch__116__ * acegen_scratch__75__;
+  cacheOut[6] =
+    acegen_scratch__75__ * (acegen_scratch__34__ * acegen_scratch__7__ +
+                            acegen_scratch__35__ * acegen_scratch__8__);
+  cacheOut[7] =
+    acegen_scratch__75__ * (acegen_scratch__10__ * acegen_scratch__35__ +
+                            acegen_scratch__34__ * acegen_scratch__9__);
+  cacheOut[8] =
+    acegen_scratch__75__ * (acegen_scratch__10__ * acegen_scratch__37__ +
+                            acegen_scratch__36__ * acegen_scratch__9__);
 }
 
 

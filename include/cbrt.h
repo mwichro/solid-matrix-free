@@ -56,5 +56,16 @@ namespace CBRT
     return x;
   }
 
+  template <typename Number>
+  constexpr inline Number
+  exact(const Number &x)
+  {
+    Number out;
+    for (unsigned int i = 0; i < Number::size(); ++i)
+      out[i] = std::cbrt(x[i]);
+    return out;
+  }
+
+
 } // namespace CBRT
 #endif // __CBRT_H__

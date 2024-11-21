@@ -440,7 +440,44 @@ namespace Cached
   Tangent<2>::evaluate_deformed(const Tensor<2, dim, Number> & gradduIn,
                                 const ArrayView<const Number> &cacheIn,
                                 Tensor<2, dim, Number> &       gradientOut)
-  {}
+  {
+    Number acegen_scratch__1__, acegen_scratch__11__, acegen_scratch__12__,
+      acegen_scratch__13__, acegen_scratch__2__, acegen_scratch__22__,
+      acegen_scratch__26__, acegen_scratch__3__, acegen_scratch__4__,
+      acegen_scratch__6__, acegen_scratch__7__, acegen_scratch__9__;
+    acegen_scratch__1__  = gradduIn[0][0];
+    acegen_scratch__2__  = gradduIn[0][1];
+    acegen_scratch__3__  = gradduIn[1][0];
+    acegen_scratch__4__  = gradduIn[1][1];
+    acegen_scratch__6__  = cacheIn[1];
+    acegen_scratch__7__  = cacheIn[2];
+    acegen_scratch__9__  = cacheIn[4];
+    acegen_scratch__11__ = cacheIn[6];
+    acegen_scratch__12__ = cacheIn[7];
+    acegen_scratch__13__ = cacheIn[8];
+    acegen_scratch__22__ =
+      0.7071067811865476e0 * (acegen_scratch__2__ + acegen_scratch__3__);
+    acegen_scratch__26__ =
+      0.7071067811865476e0 * (acegen_scratch__1__ * acegen_scratch__7__ +
+                              acegen_scratch__4__ * acegen_scratch__9__ +
+                              acegen_scratch__22__ * cacheIn[5]);
+    gradientOut[0][0] =
+      acegen_scratch__12__ * acegen_scratch__2__ +
+      acegen_scratch__4__ * acegen_scratch__6__ +
+      acegen_scratch__22__ * acegen_scratch__7__ +
+      acegen_scratch__1__ * (acegen_scratch__11__ + cacheIn[0]);
+    gradientOut[0][1] = acegen_scratch__1__ * acegen_scratch__12__ +
+                        acegen_scratch__13__ * acegen_scratch__2__ +
+                        acegen_scratch__26__;
+    gradientOut[1][0] = acegen_scratch__26__ +
+                        acegen_scratch__11__ * acegen_scratch__3__ +
+                        acegen_scratch__12__ * acegen_scratch__4__;
+    gradientOut[1][1] =
+      acegen_scratch__12__ * acegen_scratch__3__ +
+      acegen_scratch__1__ * acegen_scratch__6__ +
+      acegen_scratch__22__ * acegen_scratch__9__ +
+      acegen_scratch__4__ * (acegen_scratch__13__ + cacheIn[3]);
+  }
 
 
 } // namespace Cached

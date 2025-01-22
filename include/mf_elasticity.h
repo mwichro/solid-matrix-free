@@ -83,6 +83,7 @@ static const unsigned int debug_level = 0;
 #include <deal.II/physics/elasticity/standard_tensors.h>
 
 #include <config.h>
+#include <make_holes_grid.h>
 #include <material.h>
 #include <mf_ad_nh_operator.h>
 #include <mf_nh_operator.h>
@@ -1405,188 +1406,10 @@ namespace Cook_Membrane
       }
     else if (parameters.type == "Holes")
       {
-        // plate with a hole and 2 inclusions (geometry from Miehe 2007,
-        // On multiscale FE analyses...)
-        Point<2> center_1, center_2, center_3;
-        center_1[0]      = -0.2 * parameters.scale;
-        center_1[1]      = -0.2 * parameters.scale;
-        center_2[0]      = -0.2 * parameters.scale;
-        center_2[1]      = 0.2 * parameters.scale;
-        center_3[0]      = 0.2 * parameters.scale;
-        center_3[1]      = 0.0 * parameters.scale;
-        const double R   = 0.15 * parameters.scale;
-        const double R2  = 0.2 * parameters.scale;
-        const double pLR = 0.1 * parameters.scale;
-        const double pBT = 0.2 * parameters.scale;
-
-        // inclusion:
-        Triangulation<2> sphere_2, sphere_3;
-
-        auto create_inclusion = [&](Triangulation<2> &       out,
-                                    const Point<2> &         center,
-                                    const double             radius,
-                                    const types::manifold_id tfi_manifold_id,
-                                    const types::manifold_id ball_id) -> void {
-          Triangulation<2> sphere;
-          GridGenerator::hyper_ball(sphere, center, radius);
-
-          for (const auto &cell : sphere.active_cell_iterators())
-            {
-              if (cell->center().distance(center) <
-                  1e-8 * this->parameters.scale)
-                {
-                  cell->set_all_manifold_ids(numbers::flat_manifold_id);
-                }
-              else
-                {
-                  cell->set_manifold_id(tfi_manifold_id);
-                }
-              cell->set_material_id(2);
-            }
-
-          sphere.refine_global(1);
-          // at this point we have 8 faces across circumference
-          GridGenerator::flatten_triangulation(sphere, out);
-          out.set_all_manifold_ids_on_boundary(ball_id);
-        };
-
-        create_inclusion(sphere_2, center_2, R, 7, 2);
-        create_inclusion(sphere_3, center_3, R, 8, 3);
-
-        Triangulation<2> plate_1;
-        GridGenerator::plate_with_a_hole(plate_1,
-                                         R /*inner_radius*/,
-                                         R2 /*outer_radius*/,
-                                         0. /*pad_bottom*/,
-                                         0. /*pad_top*/,
-                                         pLR /*pad_left*/,
-                                         0. /*pad_right*/,
-                                         center_1 /*center*/,
-                                         1 /*polar_manifold_id*/,
-                                         4 /*tfi_manifold_id*/,
-                                         1. /*L*/,
-                                         1. /*n_slices*/,
-                                         false /*colorize*/);
-        for (const auto &cell : plate_1.active_cell_iterators())
-          for (unsigned int face_no = 0;
-               face_no < GeometryInfo<2>::faces_per_cell;
-               ++face_no)
-            if (cell->at_boundary(face_no) &&
-                cell->face(face_no)->manifold_id() != 1)
-              cell->face(face_no)->set_all_manifold_ids(
-                numbers::flat_manifold_id);
-
-        Triangulation<2> plate_2;
-        GridGenerator::plate_with_a_hole(plate_2,
-                                         R /*inner_radius*/,
-                                         R2 /*outer_radius*/,
-                                         0. /*pad_bottom*/,
-                                         0. /*pad_top*/,
-                                         pLR /*pad_left*/,
-                                         0. /*pad_right*/,
-                                         center_2 /*center*/,
-                                         2 /*polar_manifold_id*/,
-                                         5 /*tfi_manifold_id*/,
-                                         1. /*L*/,
-                                         1. /*n_slices*/,
-                                         false /*colorize*/);
-        for (const auto &cell : plate_2.active_cell_iterators())
-          for (unsigned int face_no = 0;
-               face_no < GeometryInfo<2>::faces_per_cell;
-               ++face_no)
-            if (cell->at_boundary(face_no) &&
-                cell->face(face_no)->manifold_id() != 2)
-              cell->face(face_no)->set_all_manifold_ids(
-                numbers::flat_manifold_id);
-
-        Triangulation<2> plate_3;
-        GridGenerator::plate_with_a_hole(plate_3,
-                                         R /*inner_radius*/,
-                                         R2 /*outer_radius*/,
-                                         pBT /*pad_bottom*/,
-                                         pBT /*pad_top*/,
-                                         0. /*pad_left*/,
-                                         pLR /*pad_right*/,
-                                         center_3 /*center*/,
-                                         3 /*polar_manifold_id*/,
-                                         6 /*tfi_manifold_id*/,
-                                         1. /*L*/,
-                                         1. /*n_slices*/,
-                                         false /*colorize*/);
-        for (const auto &cell : plate_3.active_cell_iterators())
-          for (unsigned int face_no = 0;
-               face_no < GeometryInfo<2>::faces_per_cell;
-               ++face_no)
-            if (cell->at_boundary(face_no) &&
-                cell->face(face_no)->manifold_id() != 3)
-              cell->face(face_no)->set_all_manifold_ids(
-                numbers::flat_manifold_id);
-
-        Triangulation<2>                       top, bottom;
-        const std::vector<std::vector<double>> step_sizes = {
-          {0.1 * parameters.scale,
-           0.2 * parameters.scale,
-           0.2 * parameters.scale,
-           0.2 * parameters.scale,
-           0.2 * parameters.scale,
-           0.1 * parameters.scale},
-          {0.1 * parameters.scale}};
-        Point<2> bl, tr;
-        bl[0] = -0.5 * parameters.scale;
-        bl[1] = 0.4 * parameters.scale;
-        tr[0] = 0.5 * parameters.scale;
-        tr[1] = 0.5 * parameters.scale;
-        GridGenerator::subdivided_hyper_rectangle(top, step_sizes, bl, tr);
-
-        bl[1] = -0.5 * parameters.scale;
-        tr[1] = -0.4 * parameters.scale;
-        GridGenerator::subdivided_hyper_rectangle(bottom, step_sizes, bl, tr);
-
-        Point<dim> center_dim_1, center_dim_2, center_dim_3;
-        for (unsigned int d = 0; d < 2; ++d)
-          {
-            center_dim_1[d] = center_1[d];
-            center_dim_2[d] = center_2[d];
-            center_dim_3[d] = center_3[d];
-          }
-
-        merge(
-          triangulation,
-          {&plate_1, &plate_2, &plate_3, &sphere_2, &sphere_3, &top, &bottom},
-          parameters.scale,
-          center_dim_1,
-          center_dim_2,
-          center_dim_3,
-          parameters.extrusion_height,
-          parameters.extrusion_slices);
-
-        for (unsigned int i = 4; i <= 8; ++i)
-          {
-            TransfiniteInterpolationManifold<dim> transfinite_manifold;
-            transfinite_manifold.initialize(triangulation);
-            triangulation.set_manifold(i, transfinite_manifold);
-          }
-
-        const double tol_boundary = 1e-6 * parameters.scale;
-        for (auto cell : triangulation.active_cell_iterators())
-          for (unsigned int face = 0; face < GeometryInfo<dim>::faces_per_cell;
-               ++face)
-            if (cell->face(face)->at_boundary() == true)
-              {
-                if (std::abs(cell->face(face)->center()[1] -
-                             (-0.5 * parameters.scale)) < tol_boundary)
-                  cell->face(face)->set_boundary_id(1); // -Y faces
-                else if (std::abs(cell->face(face)->center()[1] -
-                                  0.5 * parameters.scale) < tol_boundary)
-                  cell->face(face)->set_boundary_id(11); // +Y faces
-              }
-
-        // output coarse grid:
-        /*
-        GridOut grid_out;
-        std::ofstream output("grid.eps");
-        grid_out.write_eps(triangulation, output);
-        */
+        MakeGrid::make_holes_grid(triangulation,
+                                  parameters.scale,
+                                  parameters.extrusion_height,
+                                  parameters.extrusion_slices);
       }
     else
       {
@@ -2038,9 +1861,11 @@ namespace Cook_Membrane
 
     // need to cache prior to diagonal computations:
     mf_nh_operator.cache();
+    if (debug_level > 0 || !parameters.skip_tangent_assembly)
+      mf_nh_operator.compute_diagonal();
+
     if (debug_level > 0)
       {
-        mf_nh_operator.compute_diagonal();
         deallog << "GMG setup Newton iteration " << it_nr << std::endl;
         deallog
           << "Number of constrained DoFs "
@@ -2353,6 +2178,8 @@ namespace Cook_Membrane
 
         // now ready to go-on and assmble linearized problem around solution_n +
         // solution_delta for this iteration.
+        if (parameters.skip_tangent_assembly)
+          pcout << " RHS " << std::flush;
         assemble_residual();
 
 
@@ -2372,6 +2199,7 @@ namespace Cook_Membrane
                 std::abort();
               }
           }
+
 
         if (check_convergence(newton_iteration))
           break;
@@ -2978,6 +2806,7 @@ namespace Cook_Membrane
     system_rhs = 0;
 
     mf_nh_operator.compute_resudual(system_rhs);
+    system_rhs.compress(VectorOperation::add);
     system_rhs *= -1;
 
 
@@ -3034,8 +2863,8 @@ namespace Cook_Membrane
     system_rhs.compress(VectorOperation::add);
 
     constraints.set_zero(system_rhs);
-    error_residual.norm = system_rhs_trilinos.l2_norm();
-    error_residual.u    = system_rhs_trilinos.l2_norm();
+    error_residual.norm = system_rhs.l2_norm();
+    error_residual.u    = system_rhs.l2_norm();
   }
 
 

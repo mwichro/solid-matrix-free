@@ -163,7 +163,7 @@ for f in files:
                 mf2d_data_none.append(tp)
             else:
                 mf3d_data_none.append(tp)
-        elif '_acegen_' in f:
+        elif '_acegen_actual' in f:
             if dim == 2:
                 mf2d_data_acegen.append(tp)
             else:
@@ -333,6 +333,7 @@ tr_line = 'rs--'
 sc_line = 'bX:'
 t4_line = 'cv:'
 ag_line = 'y^-.'
+t2_line = 'mD--'
 
 # 6.1:
 params   = {'legend.fontsize': 16,
@@ -363,6 +364,7 @@ if custom_model == False:
     plt.plot(deg2d,time2d_tr, tr_line, label='Trilinos')
     plt.plot(deg2d,time2d_sc, sc_line, label='MF scalar')
     plt.plot(deg2d,time2d_t4, t4_line, label='MF tensor4')
+    plt.plot(deg2d,time2d_t2, t2_line, label='MF tensor2')
     # plt.plot(deg2d,time2d_t2, 'g^--', label='MF tensor2')
     # plt.plot(deg2d,time2d_t4_ns, 'mD--', label='MF tensor4 P')
 else:
@@ -394,6 +396,7 @@ if custom_model == False:
     plt.plot(deg3d,time3d_tr, tr_line, label='Trilinos')
     plt.plot(deg3d,time3d_sc, sc_line, label='MF scalar')
     plt.plot(deg3d,time3d_t4, t4_line, label='MF tensor4')
+    plt.plot(deg3d,time3d_t2, t2_line, label='MF tensor2')
     # plt.plot(deg3d,time3d_t2, 'g^--', label='MF tensor2')
     # plt.plot(deg3d,time3d_t4_ns, 'mD--', label='MF tensor4 P')
 else:
@@ -421,6 +424,7 @@ if custom_model == False:
     plt.plot(deg2d,time2d_sc, sc_line, label='MF scalar')
     plt.plot(deg2d,time2d_t4, t4_line, label='MF tensor4')
     plt.plot(deg2d,time2d_ag, ag_line, label='MF SS')
+    plt.plot(deg2d,time2d_t2, t2_line, label='MF tensor2')
 
 
     plt.xlabel('polynomial degree')
@@ -441,6 +445,7 @@ if custom_model == False:
     plt.plot(deg3d,time3d_sc, sc_line, label='MF scalar')
     plt.plot(deg3d,time3d_t4, t4_line, label='MF tensor4')
     plt.plot(deg3d,time3d_ag, ag_line, label='MF SS')
+    plt.plot(deg3d,time3d_t2, t2_line, label='MF tensor2')
 
 
     plt.xlabel('polynomial degree')
@@ -467,6 +472,9 @@ if custom_model == False:
     plt.plot(deg2d,through2d_tr, tr_line, label='Trilinos')
     plt.plot(deg2d,through2d_sc, sc_line, label='MF scalar')
     plt.plot(deg2d,through2d_t4, t4_line, label='MF tensor4')
+    plt.plot(deg2d,through2d_t2, t2_line, label='MF tensor2')
+    plt.plot(deg2d,through2d_ag, ag_line, label='MF SS')
+
     # plt.plot(deg2d,through2d_t2, 'g^--', label='MF tensor2')
     # plt.plot(deg2d,through2d_t4_ns, 'mD--', label='MF tensor4 P')
 else:
@@ -489,11 +497,15 @@ ax.xaxis.set_major_locator(MaxNLocator(integer=True))
 if args.log_scale == True:
     plt.yscale('log')
 
-plt.plot(deg3d,through3d_nn, nn_line, label='MF none')
 if custom_model == False:
     plt.plot(deg3d,through3d_tr, tr_line, label='Trilinos')
+plt.plot(deg3d,through3d_nn, nn_line, label='MF none')
+if custom_model == False:
     plt.plot(deg3d,through3d_sc, sc_line, label='MF scalar')
     plt.plot(deg3d,through3d_t4, t4_line, label='MF tensor4')
+    plt.plot(deg3d,through3d_t2, t2_line, label='MF tensor2')
+    plt.plot(deg3d,through3d_ag, ag_line, label='MF SS')
+
     # plt.plot(deg3d,through3d_t2, 'g^--', label='MF tensor2')
     # plt.plot(deg3d,through3d_t4_ns, 'mD--', label='MF tensor4 P')
 else:
@@ -501,9 +513,20 @@ else:
 
 plt.xlabel('polynomial degree')
 plt.ylabel('vmult DoF / s')
-# leg = plt.legend(loc='lower right', ncol=1)
 ax.set_aspect(1.0/ax.get_data_ratio()*ratio)
 plt.savefig(fig_prefix + 'throughput3d.pdf', format='pdf', bbox_inches = 'tight')
+
+leg = plt.legend(loc='lower right', ncol=1)
+# save the legend in a separate figure
+fig_leg = figure(figsize=(3, 2))
+ax_leg = fig_leg.add_subplot(111)
+ax_leg.axis('off')
+legend = ax_leg.legend(*ax.get_legend_handles_labels(), loc='center', frameon=False)
+fig_leg.canvas.draw()
+bbox  = legend.get_window_extent().transformed(fig_leg.dpi_scale_trans.inverted())
+fig_leg.savefig(fig_prefix + 'legend-comparison.pdf', format='pdf', bbox_inches=bbox)
+
+
 
 # clear
 plt.clf()

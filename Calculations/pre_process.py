@@ -54,7 +54,7 @@ poly_quad_ref_dim_likwid = [
 ]
 
 poly_quad_ref_dim_small = [
-    (2,3,1,2),
+    (2,3,3,2),
     (2,3,1,3)
 ]
 

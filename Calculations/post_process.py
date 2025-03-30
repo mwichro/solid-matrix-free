@@ -518,10 +518,10 @@ plt.savefig(fig_prefix + 'throughput3d.pdf', format='pdf', bbox_inches = 'tight'
 
 leg = plt.legend(loc='lower right', ncol=1)
 # save the legend in a separate figure
-fig_leg = figure(figsize=(3, 2))
+fig_leg = figure(figsize=(10, 1))
 ax_leg = fig_leg.add_subplot(111)
 ax_leg.axis('off')
-legend = ax_leg.legend(*ax.get_legend_handles_labels(), loc='center', frameon=False)
+legend = ax_leg.legend(*ax.get_legend_handles_labels(), loc='center', frameon=True, ncol=3)
 fig_leg.canvas.draw()
 bbox  = legend.get_window_extent().transformed(fig_leg.dpi_scale_trans.inverted())
 fig_leg.savefig(fig_prefix + 'legend-comparison.pdf', format='pdf', bbox_inches=bbox)
@@ -539,20 +539,33 @@ if args.log_scale == True:
     plt.yscale('log')
 
 plt.plot(deg2d,mem2d_nn, nn_line, label='MF none')
+plt.plot(deg2d,mem2d_ag, ag_line, label='MF SS')
 if custom_model == False:
     # plt.plot(deg2d,mem2d_tr, tr_line, label='Trilinos')
     plt.plot(deg2d,mem2d_sc, sc_line, label='MF scalar')
     plt.plot(deg2d,mem2d_t4, t4_line, label='MF tensor4')
-    # plt.plot(deg2d,mem2d_t2, 'g^--', label='MF tensor2')
+    plt.plot(deg2d,mem2d_t2, t2_line, label='MF tensor2')
+    # plt.plot(deg2d,mem2d_ag, ag_line, label='MF SS')
     # plt.plot(deg2d,mem2d_t4_ns, 'mD--', label='MF tensor4 P')
-else:
-    plt.plot(deg2d,mem2d_ag, ag_line, label='MF SS')
 
 plt.xlabel('polynomial degree')
 plt.ylabel('memory (Mb) / DoF')
 # leg = plt.legend(loc='best', ncol=1)
 ax.set_aspect(1.0/ax.get_data_ratio()*ratio)
 plt.savefig(fig_prefix + 'memory2d.pdf', format='pdf', bbox_inches = 'tight')
+
+# leg = plt.legend(loc='lower right', ncol=1)
+# save the legend in a separate figure
+fig_leg = figure(figsize=(10, 1))
+ax_leg = fig_leg.add_subplot(111)
+ax_leg.axis('off')
+legend = ax_leg.legend(*ax.get_legend_handles_labels(), loc='center', frameon=True, ncol=3)
+fig_leg.canvas.draw()
+bbox  = legend.get_window_extent().transformed(fig_leg.dpi_scale_trans.inverted())
+fig_leg.savefig(fig_prefix + 'legend-mem.pdf', format='pdf', bbox_inches=bbox)
+
+
+
 
 # clear
 plt.clf()
@@ -565,14 +578,15 @@ if args.log_scale == True:
     plt.yscale('log')
     
 plt.plot(deg3d,mem3d_nn, nn_line, label='MF none')
+plt.plot(deg3d,mem3d_ag, ag_line, label='MF SS')
 if custom_model == False:
     # plt.plot(deg3d,mem3d_tr, tr_line, label='Trilinos')
     plt.plot(deg3d,mem3d_sc, sc_line, label='MF scalar')
     plt.plot(deg3d,mem3d_t4, t4_line, label='MF tensor4')
-    # plt.plot(deg3d,mem3d_t2, 'g^--', label='MF tensor2')
+    plt.plot(deg3d,mem3d_t2, t2_line, label='MF tensor2')
     # plt.plot(deg3d,mem3d_t4_ns, 'mD--', label='MF tensor4 P')
-else:
-    plt.plot(deg3d,mem3d_ag, ag_line, label='MF SS')
+# else:
+#    plt.plot(deg3d,mem3d_ag, ag_line, label='MF SS')
 
 plt.xlabel('polynomial degree')
 plt.ylabel('memory (Mb) / DoF')

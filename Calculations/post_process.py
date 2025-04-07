@@ -251,6 +251,7 @@ solver2d_t4        = [tup[4][2]/tup[1] for tup in mf2d_data_tensor4]
 solver2d_t4_ns     = [tup[4][2]/tup[1] for tup in mf2d_data_tensor4_ns]
 solver2d_t4_coarse = [tup[4][4]/tup[1] for tup in mf2d_data_tensor4]
 
+
 solver3d_tr        = [tup[4][2]/tup[1] for tup in mb3d_data]
 solver3d_sc        = [tup[4][2]/tup[1] for tup in mf3d_data_scalar]
 solver3d_nn        = [tup[4][2]/tup[1] for tup in mf3d_data_none]
@@ -302,23 +303,26 @@ cg2d_t4 = [tup[5] for tup in mf2d_data_tensor4]
 cg3d_tr = [tup[5] for tup in mb3d_data]
 cg3d_t4 = [tup[5] for tup in mf3d_data_tensor4]
 
-# Mb per dof
-mem2d_tr    = [tup[2]/tup[1] for tup in mb2d_data]
-mem2d_sc    = [tup[3]/tup[1] for tup in mf2d_data_scalar]
-mem2d_nn    = [tup[3]/tup[1] for tup in mf2d_data_none]
-mem2d_ag    = [tup[3]/tup[1] for tup in mf2d_data_acegen]
-mem2d_t2    = [tup[3]/tup[1] for tup in mf2d_data_tensor2]
-mem2d_t4    = [tup[3]/tup[1] for tup in mf2d_data_tensor4]
-mem2d_t4_ns = [tup[3]/tup[1] for tup in mf2d_data_tensor4_ns]
+MB2double = 1024.0 * 1024.0 / 8.0  # Number of doubles in 1 MB
 
-mem3d_tr    = [tup[2]/tup[1] for tup in mb3d_data]
-mem3d_sc    = [tup[3]/tup[1] for tup in mf3d_data_scalar]
-mem3d_nn    = [tup[3]/tup[1] for tup in mf3d_data_none]
-mem3d_ag    = [tup[3]/tup[1] for tup in mf3d_data_acegen]
-mem3d_t2    = [tup[3]/tup[1] for tup in mf3d_data_tensor2]
-mem3d_t4    = [tup[3]/tup[1] for tup in mf3d_data_tensor4]
-mem3d_t4_ns = [tup[3]/tup[1] for tup in mf3d_data_tensor4_ns]
+# doubles per dof
+mem2d_sc    = [(tup[3]* MB2double )/tup[1] for tup in mf2d_data_scalar]
+mem2d_tr    = [(tup[2]* MB2double )/tup[1] for tup in mb2d_data]
+mem2d_nn    = [(tup[3]* MB2double )/tup[1] for tup in mf2d_data_none]
+mem2d_ag    = [(tup[3]* MB2double )/tup[1] for tup in mf2d_data_acegen]
+mem2d_t2    = [(tup[3]* MB2double )/tup[1] for tup in mf2d_data_tensor2]
+mem2d_t4    = [(tup[3]* MB2double )/tup[1] for tup in mf2d_data_tensor4]
+mem2d_t4_ns = [(tup[3]* MB2double )/tup[1] for tup in mf2d_data_tensor4_ns]
 
+mem3d_tr    = [(tup[2]* MB2double)/tup[1] for tup in mb3d_data]
+mem3d_sc    = [(tup[3]* MB2double)/tup[1] for tup in mf3d_data_scalar]
+mem3d_nn    = [(tup[3]* MB2double)/tup[1] for tup in mf3d_data_none]
+mem3d_ag    = [(tup[3]* MB2double)/tup[1] for tup in mf3d_data_acegen]
+mem3d_t2    = [(tup[3]* MB2double)/tup[1] for tup in mf3d_data_tensor2]
+mem3d_t4    = [(tup[3]* MB2double)/tup[1] for tup in mf3d_data_tensor4]
+mem3d_t4_ns = [(tup[3]* MB2double)/tup[1] for tup in mf3d_data_tensor4_ns]
+
+print("mem3d_ag" , mem3d_ag)
 # file location
 fig_prefix = os.path.join(os.getcwd(), '../doc/' + os.path.basename(os.path.normpath(prefix)) + '_')
 
@@ -334,6 +338,22 @@ sc_line = 'bX:'
 t4_line = 'cv:'
 ag_line = 'y^-.'
 t2_line = 'mD--'
+
+tr_name = 'sparse matrix'
+
+ne_name = 'exact log'
+nP_name = 'Pade log'
+ag_name = 'tensorAD'
+
+sc_name = 'scalar curr'
+sr_name = 'scalar ref.'
+t4_name = 'tensor4'
+t2_name = 'tensor2'
+if custom_model == True:
+    ne_name = 'Pade root'
+    print("custom model")
+
+
 
 # 6.1:
 params   = {'legend.fontsize': 16,
@@ -361,14 +381,14 @@ if args.log_scale == True:
 
 plt.plot(deg2d,time2d_nn, nn_line, label='MF none')
 if custom_model == False:
-    plt.plot(deg2d,time2d_tr, tr_line, label='Trilinos')
-    plt.plot(deg2d,time2d_sc, sc_line, label='MF scalar')
-    plt.plot(deg2d,time2d_t4, t4_line, label='MF tensor4')
-    plt.plot(deg2d,time2d_t2, t2_line, label='MF tensor2')
+    plt.plot(deg2d,time2d_tr, tr_line, label=tr_name)
+    plt.plot(deg2d,time2d_sc, sc_line, label=sc_name)
+    plt.plot(deg2d,time2d_t4, t4_line, label=t4_name)
+    plt.plot(deg2d,time2d_t2, t2_line, label=t2_name)
     # plt.plot(deg2d,time2d_t2, 'g^--', label='MF tensor2')
     # plt.plot(deg2d,time2d_t4_ns, 'mD--', label='MF tensor4 P')
 else:
-    plt.plot(deg2d,time2d_ag, ag_line, label='MF SS')
+    plt.plot(deg2d,time2d_ag, ag_line, label= ag_name)
 
 
 plt.xlabel('polynomial degree')
@@ -393,14 +413,14 @@ if args.log_scale == True:
 
 plt.plot(deg3d,time3d_nn, nn_line, label='MF none')
 if custom_model == False:
-    plt.plot(deg3d,time3d_tr, tr_line, label='Trilinos')
-    plt.plot(deg3d,time3d_sc, sc_line, label='MF scalar')
-    plt.plot(deg3d,time3d_t4, t4_line, label='MF tensor4')
-    plt.plot(deg3d,time3d_t2, t2_line, label='MF tensor2')
+    plt.plot(deg3d,time3d_tr, tr_line, label=tr_name)
+    plt.plot(deg3d,time3d_sc, sc_line, label=sc_name)
+    plt.plot(deg3d,time3d_t4, t4_line, label=t4_name)
+    plt.plot(deg3d,time3d_t2, t2_line, label=t2_name)
     # plt.plot(deg3d,time3d_t2, 'g^--', label='MF tensor2')
     # plt.plot(deg3d,time3d_t4_ns, 'mD--', label='MF tensor4 P')
 else:
-    plt.plot(deg3d,time3d_ag, ag_line, label='MF SS')
+    plt.plot(deg3d,time3d_ag, ag_line, label=ag_name)
 
 
 plt.xlabel('polynomial degree')
@@ -420,11 +440,11 @@ if custom_model == False:
     if args.log_scale == True:
         plt.yscale('log')
 
-    plt.plot(deg2d,time2d_nn, nn_line, label='MF none')
-    plt.plot(deg2d,time2d_sc, sc_line, label='MF scalar')
-    plt.plot(deg2d,time2d_t4, t4_line, label='MF tensor4')
-    plt.plot(deg2d,time2d_ag, ag_line, label='MF SS')
-    plt.plot(deg2d,time2d_t2, t2_line, label='MF tensor2')
+    plt.plot(deg2d,time2d_nn, nn_line, label=ne_name)
+    plt.plot(deg2d,time2d_sc, sc_line, label=sc_name)
+    plt.plot(deg2d,time2d_t4, t4_line, label=t4_name)
+    plt.plot(deg2d,time2d_ag, ag_line, label=ag_name)
+    plt.plot(deg2d,time2d_t2, t2_line, label=t2_name)
 
 
     plt.xlabel('polynomial degree')
@@ -441,11 +461,11 @@ if custom_model == False:
     if args.log_scale == True:
         plt.yscale('log')
 
-    plt.plot(deg3d,time3d_nn, nn_line, label='MF none')
-    plt.plot(deg3d,time3d_sc, sc_line, label='MF scalar')
-    plt.plot(deg3d,time3d_t4, t4_line, label='MF tensor4')
-    plt.plot(deg3d,time3d_ag, ag_line, label='MF SS')
-    plt.plot(deg3d,time3d_t2, t2_line, label='MF tensor2')
+    plt.plot(deg3d,time3d_nn, nn_line, label=ne_name)
+    plt.plot(deg3d,time3d_sc, sc_line, label=sc_name)
+    plt.plot(deg3d,time3d_t4, t4_line, label=t4_name)
+    plt.plot(deg3d,time3d_ag, ag_line, label=ag_name)
+    plt.plot(deg3d,time3d_t2, t2_line, label=t2_name)
 
 
     plt.xlabel('polynomial degree')
@@ -469,16 +489,16 @@ if args.log_scale == True:
 
 plt.plot(deg2d,through2d_nn, nn_line, label='MF none')
 if custom_model == False:
-    plt.plot(deg2d,through2d_tr, tr_line, label='Trilinos')
-    plt.plot(deg2d,through2d_sc, sc_line, label='MF scalar')
-    plt.plot(deg2d,through2d_t4, t4_line, label='MF tensor4')
-    plt.plot(deg2d,through2d_t2, t2_line, label='MF tensor2')
-    plt.plot(deg2d,through2d_ag, ag_line, label='MF SS')
+    plt.plot(deg2d,through2d_tr, tr_line, label= tr_name)
+    plt.plot(deg2d,through2d_sc, sc_line, label= sc_name)
+    plt.plot(deg2d,through2d_t4, t4_line, label= t4_name)
+    plt.plot(deg2d,through2d_t2, t2_line, label= t2_name)
+    plt.plot(deg2d,through2d_ag, ag_line, label= ag_name)
 
     # plt.plot(deg2d,through2d_t2, 'g^--', label='MF tensor2')
     # plt.plot(deg2d,through2d_t4_ns, 'mD--', label='MF tensor4 P')
 else:
-    plt.plot(deg2d,through2d_ag, ag_line, label='MF SS')
+    plt.plot(deg2d,through2d_ag, ag_line, label=ag_name)
 
 plt.xlabel('polynomial degree')
 plt.ylabel('vmult DoF / s')
@@ -498,18 +518,18 @@ if args.log_scale == True:
     plt.yscale('log')
 
 if custom_model == False:
-    plt.plot(deg3d,through3d_tr, tr_line, label='Trilinos')
-plt.plot(deg3d,through3d_nn, nn_line, label='MF none')
+    plt.plot(deg3d,through3d_tr, tr_line, label=tr_name)
+plt.plot(deg3d,through3d_nn, nn_line, label= ne_name)
 if custom_model == False:
-    plt.plot(deg3d,through3d_sc, sc_line, label='MF scalar')
-    plt.plot(deg3d,through3d_t4, t4_line, label='MF tensor4')
-    plt.plot(deg3d,through3d_t2, t2_line, label='MF tensor2')
-    plt.plot(deg3d,through3d_ag, ag_line, label='MF SS')
+    plt.plot(deg3d,through3d_sc, sc_line, label= sc_name)
+    plt.plot(deg3d,through3d_t4, t4_line, label= t4_name)
+    plt.plot(deg3d,through3d_t2, t2_line, label= t2_name)
+    plt.plot(deg3d,through3d_ag, ag_line, label= ag_name)
 
     # plt.plot(deg3d,through3d_t2, 'g^--', label='MF tensor2')
     # plt.plot(deg3d,through3d_t4_ns, 'mD--', label='MF tensor4 P')
 else:
-    plt.plot(deg3d,through3d_ag, ag_line, label='MF SS')
+    plt.plot(deg3d,through3d_ag, ag_line, label= ag_name)
 
 plt.xlabel('polynomial degree')
 plt.ylabel('vmult DoF / s')
@@ -538,18 +558,19 @@ ax.ticklabel_format(axis='y', style='sci', scilimits=(0,0))
 if args.log_scale == True:
     plt.yscale('log')
 
-plt.plot(deg2d,mem2d_nn, nn_line, label='MF none')
-plt.plot(deg2d,mem2d_ag, ag_line, label='MF SS')
+plt.plot(deg2d,mem2d_nn, nn_line, label=ne_name )
+plt.plot(deg2d,mem2d_ag, ag_line, label=ag_name)
 if custom_model == False:
     # plt.plot(deg2d,mem2d_tr, tr_line, label='Trilinos')
-    plt.plot(deg2d,mem2d_sc, sc_line, label='MF scalar')
-    plt.plot(deg2d,mem2d_t4, t4_line, label='MF tensor4')
-    plt.plot(deg2d,mem2d_t2, t2_line, label='MF tensor2')
+    plt.plot(deg2d,mem2d_sc, sc_line, label=sc_name)
+    plt.plot(deg2d,mem2d_t4, t4_line, label=t4_name)
+    plt.plot(deg2d,mem2d_t2, t2_line, label=t2_name)
     # plt.plot(deg2d,mem2d_ag, ag_line, label='MF SS')
     # plt.plot(deg2d,mem2d_t4_ns, 'mD--', label='MF tensor4 P')
 
 plt.xlabel('polynomial degree')
-plt.ylabel('memory (Mb) / DoF')
+plt.ylabel('storage size per DoF')
+ax.yaxis.set_major_formatter(FormatStrFormatter('%d'))  # Use integer format
 # leg = plt.legend(loc='best', ncol=1)
 ax.set_aspect(1.0/ax.get_data_ratio()*ratio)
 plt.savefig(fig_prefix + 'memory2d.pdf', format='pdf', bbox_inches = 'tight')
@@ -577,19 +598,22 @@ ax.ticklabel_format(axis='y', style='sci', scilimits=(0,0))
 if args.log_scale == True:
     plt.yscale('log')
     
-plt.plot(deg3d,mem3d_nn, nn_line, label='MF none')
-plt.plot(deg3d,mem3d_ag, ag_line, label='MF SS')
+plt.plot(deg3d,mem3d_nn, nn_line, label=ne_name)
+plt.plot(deg3d,mem3d_ag, ag_line, label=ag_name)
 if custom_model == False:
     # plt.plot(deg3d,mem3d_tr, tr_line, label='Trilinos')
-    plt.plot(deg3d,mem3d_sc, sc_line, label='MF scalar')
-    plt.plot(deg3d,mem3d_t4, t4_line, label='MF tensor4')
-    plt.plot(deg3d,mem3d_t2, t2_line, label='MF tensor2')
+    plt.plot(deg3d,mem3d_sc, sc_line, label=sc_name)
+    plt.plot(deg3d,mem3d_t4, t4_line, label=t4_name)
+    plt.plot(deg3d,mem3d_t2, t2_line, label=t2_name)
     # plt.plot(deg3d,mem3d_t4_ns, 'mD--', label='MF tensor4 P')
 # else:
 #    plt.plot(deg3d,mem3d_ag, ag_line, label='MF SS')
 
 plt.xlabel('polynomial degree')
-plt.ylabel('memory (Mb) / DoF')
+plt.ylabel('storage size per DoF')
+# plt.ylim(25, 125)  # Set y-axis range directly to 25-125
+ax.yaxis.set_major_formatter(FormatStrFormatter('%d'))  # Use integer format
+
 # leg = plt.legend(loc='best', ncol=1)
 y_lim = ax.get_ylim()
 ax.set_aspect(1.0/ax.get_data_ratio()*ratio)
@@ -614,17 +638,18 @@ plt.ylim(top=1e-2,bottom=1e-9)
 ax.xaxis.set_major_locator(MaxNLocator(integer=True))
 plt.rcParams.update(params2)
 
-plt.plot(deg2d,solver2d_tr, 'rs--', label='Trilinos Solver')
+plt.plot(deg2d,assembly2d_tr, 'bp--', label='Matrix Assembly')
+plt.plot(deg2d,solver2d_tr, 'rs--', label='Matrix-based solver')
 # plt.plot(deg2d,solver2d_sc, 'bo--', label='MF scalar')
 # plt.plot(deg2d,solver2d_t2, 'g^--', label='MF tensor2')
 #plt.plot(deg2d,solver2d_t4_ns, 'mD--', label='MF Solver P')  # tensor4')
 #plt.plot(deg2d,mf_gmg_2d_t4_ns,'mo--', label='MF Solver P setup')
-plt.plot(deg2d,solver2d_t4, 'cv--', label='MF Solver')  # tensor4')
-plt.plot(deg2d,mf_gmg_2d_t4, 'c>--', label='MF Solver setup')  # tensor4')
-plt.plot(deg2d,solver2d_t4_coarse, 'g^--', label='MF Coarse Solver')
+plt.plot(deg2d,solver2d_t4, 'cv-', label='Matrix-free solver')  # tensor4')
+plt.plot(deg2d,mf_gmg_2d_t4, 'm>-', label='Matrix-free setup')  # tensor4')
+# plt.plot(deg2d,solver2d_t4_coarse, 'g^--', label='MF Coarse Solver')
 plt.xlabel('polynomial degree')
+plt.ylim(top=1e-3, bottom=1e-7)  # Set y-axis scale from 1e-7 to 1e-3
 plt.ylabel('wall time (s) / DoF')
-plt.plot(deg2d,assembly2d_tr, 'bp--', label='Trilinos Assembly')
 leg = plt.legend(loc='lower right', ncol=1, labelspacing=0.1)
 plt.savefig(fig_prefix + 'solver2d.pdf', format='pdf', bbox_inches = 'tight')
 
@@ -636,17 +661,18 @@ plt.ylim(top=1e-2,bottom=1e-9)
 ax.xaxis.set_major_locator(MaxNLocator(integer=True))
 plt.rcParams.update(params2)
 
-plt.plot(deg3d,solver3d_tr, 'rs--', label='Trilinos Solver')
+plt.plot(deg3d,assembly3d_tr, 'bp--', label='Matrix Assembly')
+plt.plot(deg3d,solver3d_tr, 'rs--', label='Matrix-based solver')
 # plt.plot(deg3d,solver3d_sc, 'bo--', label='MF scalar')
 # plt.plot(deg3d,solver3d_t2, 'g^--', label='MF tensor2')
 #plt.plot(deg3d,solver3d_t4_ns, 'mD--', label='MF Solver P')
 #plt.plot(deg3d,mf_gmg_3d_t4_ns,'mo--', label='MF Solver P setup')
-plt.plot(deg3d,solver3d_t4, 'cv--', label='MF Solver')
-plt.plot(deg3d,mf_gmg_3d_t4, 'c>--', label='MF Solver setup')
-plt.plot(deg3d,solver3d_t4_coarse, 'g^--', label='MF Coarse Solver')
-plt.plot(deg3d,assembly3d_tr, 'bp--', label='Trilinos Assembly')
+plt.plot(deg3d,solver3d_t4, 'cv-', label='Matrix-free solver')
+plt.plot(deg3d,mf_gmg_3d_t4, 'm>-', label='Matrix-free setup')  
+# plt.plot(deg3d,solver3d_t4_coarse, 'g^--', label='MF Coarse Solver')
 plt.xlabel('polynomial degree')
 plt.ylabel('wall time (s) / DoF')
+plt.ylim(top=3e-3, bottom=1e-7)  # Set y-axis scale from 1e-7 to 1e-3
 leg = plt.legend(loc='lower right', ncol=1, labelspacing=0.1)
 plt.savefig(fig_prefix + 'solver3d.pdf', format='pdf', bbox_inches = 'tight')
 

@@ -197,6 +197,7 @@ mf2d_data_tensor4_ns.sort(key=lambda tup: tup[0])
 mb2d_data.sort(key=lambda tup: tup[0])
 
 mf3d_data_scalar.sort(key=lambda tup: tup[0])
+mf3d_data_scalar_ref.sort(key=lambda tup: tup[0])
 mf3d_data_none.sort(key=lambda tup: tup[0])
 mf3d_data_acegen.sort(key=lambda tup: tup[0])
 mf3d_data_tensor2.sort(key=lambda tup: tup[0])
@@ -235,6 +236,7 @@ through2d_t4_ns = [tup[1]/tup[4][0] for tup in mf2d_data_tensor4_ns]
 
 through3d_tr    = [tup[1]/tup[4][1] for tup in mb3d_data]
 through3d_sc    = [tup[1]/tup[4][0] for tup in mf3d_data_scalar]
+through3d_scref = [tup[1]/tup[4][0] for tup in mf3d_data_scalar_ref]
 through3d_nn    = [tup[1]/tup[4][0] for tup in mf3d_data_none]
 through3d_ag    = [tup[1]/tup[4][0] for tup in mf3d_data_acegen]
 through3d_t2    = [tup[1]/tup[4][0] for tup in mf3d_data_tensor2]
@@ -490,8 +492,8 @@ ax.xaxis.set_major_locator(MaxNLocator(integer=True))
 if args.log_scale == True:
     plt.yscale('log')
 
-plt.plot(deg2d,through2d_nn, nn_line, label='MF none')
 if custom_model == False:
+    plt.plot(deg2d,through2d_nn, nn_line, label='MF none')
     plt.plot(deg2d,through2d_tr, tr_line, label= tr_name)
     plt.plot(deg2d,through2d_sc, sc_line, label= sc_name)
     plt.plot(deg2d,through2d_t4, t4_line, label= t4_name)
@@ -501,7 +503,8 @@ if custom_model == False:
     # plt.plot(deg2d,through2d_t2, 'g^--', label='MF tensor2')
     # plt.plot(deg2d,through2d_t4_ns, 'mD--', label='MF tensor4 P')
 else:
-    plt.plot(deg2d,through2d_ag, ag_line, label=ag_name)
+    plt.plot(deg2d,through2d_nn, 'gH-', label= "Halley root")
+    plt.plot(deg2d,through2d_ag, 'y^-', label= "tensorAD")
 
 plt.xlabel('polynomial degree')
 plt.ylabel('vmult DoF / s')
@@ -513,6 +516,10 @@ plt.savefig(fig_prefix + 'throughput2d.pdf', format='pdf', bbox_inches = 'tight'
 plt.clf()
 
 #reajustment data:
+
+scRef_dav = [156439436.6197183, 364170491.8032787, 537218181.8181818, 56960000.0]
+scalarRefSch = [4.50559284116331e8 , 10.3877703206562e8 , 13.5018642803877e8 , 17.0335570469798e8 ]
+
 sc_curr_dav = [144249350.64935064, 347100000.00000006, 542354110.8986615, 617066666.6666666]
 t4_curr_dav = [100517647.05882354, 222144000.0, 305658620.6896552, 372308379.8882681]
 scalarCurrSch=  [4.386278896346e8 , 9.146905294556e8  ,12.42803877703e8  ,14.50410141685e8 ]
@@ -524,13 +531,13 @@ iNH_TensorsDeformed = [2.8560759050389e8, 6.3747909451464e8, 9.0253829479631e8, 
 iNH_Scalar_Ref = [4.36500754147813e8, 10.108597285067873e8, 14.054298642533935e8, 16.938159879336347e8]
 iNH_Scalar_Cur =  [3.8944193061840124e8, 8.226244343891402e8,11.206636500754147e8,13.318250377073907e8]
 
-
+cNH_ratio_ref = [y/x for x,y in zip(scalarRefSch, scRef_dav)]
 cNH_ratio_sc = [y/x for x,y in zip(scalarCurrSch, sc_curr_dav)]
 cNH_ratio_t4 = [y/x for x,y in zip(t4DefSch,t4_curr_dav )]
 
-iNH_Scalar_Ref_rescaled = [x*y for x,y in zip(iNH_Scalar_Ref, cNH_ratio_sc)]
-max_iNH_Scalar_Ref_rescaled = [x * max(cNH_ratio_sc) for x in iNH_Scalar_Ref]
-min_iNH_Scalar_Ref_rescaled = [x * min(cNH_ratio_sc) for x in iNH_Scalar_Ref]
+iNH_Scalar_Ref_rescaled = [x*y for x,y in zip(iNH_Scalar_Ref, cNH_ratio_ref)]
+max_iNH_Scalar_Ref_rescaled = [x * max(cNH_ratio_ref) for x in iNH_Scalar_Ref]
+min_iNH_Scalar_Ref_rescaled = [x * min(cNH_ratio_ref) for x in iNH_Scalar_Ref]
 
 iNH_Scalar_Cur_rescaled = [x*y for x,y in zip(iNH_Scalar_Cur, cNH_ratio_sc)]
 max_iNH_Scalar_Curr_rescaled = [x * max(cNH_ratio_sc) for x in iNH_Scalar_Cur]
@@ -574,6 +581,7 @@ if custom_model == False:
     plt.plot(deg3d,through3d_t4, t4_line, label= t4_name)
     plt.plot(deg3d,through3d_t2, t2_line, label= t2_name)
     plt.plot(deg3d,through3d_ag, ag_line, label= ag_name)
+    print("through3d_scRef:", through3d_scref)
     print("through3d_sc:", through3d_sc)
     print("through3d_t4:", through3d_t4)
     # plt.plot(deg3d,through3d_t2, 'g^--', label='MF tensor2')
@@ -585,7 +593,7 @@ else:
     plt.plot(deg3d,max_iNH_Scalar_Ref_rescaled, "bX:", label= "scalar ref.")
     plt.plot(deg3d,max_iNH_TensorsDeformed_rescaled, 'y^:', label= "tensor4, curr")
     # plt.fill_between(deg3d, min_iNH_TensorsDeformed_rescaled, max_iNH_TensorsDeformed_rescaled, color='yellow', alpha=0.3)
-    plt.plot(deg3d,max_iNH_remputeAll_rescaled, 'gH:', label= "recompute a`ll")
+    plt.plot(deg3d,max_iNH_remputeAll_rescaled, 'gH:', label= "recompute all")
     plt.fill_between(deg3d, min_iNH_remputeAll_rescaled, max_iNH_remputeAll_rescaled, color='green', alpha=0.2)
 
 
@@ -602,7 +610,7 @@ ax_leg.axis('off')
 if custom_model == False:
     legend = ax_leg.legend(*ax.get_legend_handles_labels(), loc='center', frameon=True, ncol=3)
 else:
-    legend = ax_leg.legend(*ax.get_legend_handles_labels(), loc='center', frameon=True, ncol=1)
+    legend = ax_leg.legend(*ax.get_legend_handles_labels(), loc='center', frameon=True, ncol=3)
 fig_leg.canvas.draw()
 bbox  = legend.get_window_extent().transformed(fig_leg.dpi_scale_trans.inverted())
 fig_leg.savefig(fig_prefix + 'legend-comparison.pdf', format='pdf', bbox_inches=bbox)

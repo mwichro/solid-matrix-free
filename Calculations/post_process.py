@@ -479,6 +479,9 @@ if custom_model == False:
 thoughput_exp = 9 if "CSL" in args.prefix else 8
 plt.clf()
 
+
+
+
 ax = plt.figure().gca()
 # ax.yaxis.set_major_formatter(OOMFormatter(thoughput_exp, "%1.1f"))
 ax.ticklabel_format(axis='y', style='sci', scilimits=(0,0))
@@ -509,6 +512,40 @@ plt.savefig(fig_prefix + 'throughput2d.pdf', format='pdf', bbox_inches = 'tight'
 # clear
 plt.clf()
 
+#reajustment data:
+sc_curr_dav = [144249350.64935064, 347100000.00000006, 542354110.8986615, 617066666.6666666]
+t4_curr_dav = [100517647.05882354, 222144000.0, 305658620.6896552, 372308379.8882681]
+scalarCurrSch=  [4.386278896346e8 , 9.146905294556e8  ,12.42803877703e8  ,14.50410141685e8 ]
+t4DefSch= [5.042505592841165e8, 10.39970171513795e8, 14.22967934377330e8, 17.06935123042505e8 ]
+
+# iNH data
+iNH_remputeAll= [3.3986528033456e8, 8.1230841519797e8, 11.412711168357e8, 13.568955330495e8]
+iNH_TensorsDeformed = [2.8560759050389e8, 6.3747909451464e8, 9.0253829479631e8, 10.795784516927e8]
+iNH_Scalar_Ref = [4.36500754147813e8, 10.108597285067873e8, 14.054298642533935e8, 16.938159879336347e8]
+iNH_Scalar_Cur =  [3.8944193061840124e8, 8.226244343891402e8,11.206636500754147e8,13.318250377073907e8]
+
+
+cNH_ratio_sc = [y/x for x,y in zip(scalarCurrSch, sc_curr_dav)]
+cNH_ratio_t4 = [y/x for x,y in zip(t4DefSch,t4_curr_dav )]
+
+iNH_Scalar_Ref_rescaled = [x*y for x,y in zip(iNH_Scalar_Ref, cNH_ratio_sc)]
+max_iNH_Scalar_Ref_rescaled = [x * max(cNH_ratio_sc) for x in iNH_Scalar_Ref]
+min_iNH_Scalar_Ref_rescaled = [x * min(cNH_ratio_sc) for x in iNH_Scalar_Ref]
+
+iNH_Scalar_Cur_rescaled = [x*y for x,y in zip(iNH_Scalar_Cur, cNH_ratio_sc)]
+max_iNH_Scalar_Curr_rescaled = [x * max(cNH_ratio_sc) for x in iNH_Scalar_Cur]
+min_iNH_Scalar_Curr_rescaled = [x * min(cNH_ratio_sc) for x in iNH_Scalar_Cur]
+
+
+iNH_TensorsDeformed_rescaled = [x*y for x,y in zip(iNH_TensorsDeformed, cNH_ratio_t4)]
+max_iNH_TensorsDeformed_rescaled = [x * max(cNH_ratio_t4) for x in iNH_TensorsDeformed]
+min_iNH_TensorsDeformed_rescaled = [x * min(cNH_ratio_t4) for x in iNH_TensorsDeformed]
+
+iNH_remputeAll_rescaled = [x*y for x,y in zip(iNH_remputeAll, cNH_ratio_sc)]
+max_iNH_remputeAll_rescaled = [x * max(cNH_ratio_sc) for x in iNH_remputeAll]
+min_iNH_remputeAll_rescaled = [x * min(cNH_ratio_sc) for x in iNH_remputeAll]
+
+
 ax = plt.figure().gca()
 # ax.yaxis.set_major_formatter(OOMFormatter(thoughput_exp, "%1.1f"))
 ax.ticklabel_format(axis='y', style='sci', scilimits=(0,0))
@@ -516,20 +553,41 @@ ax.xaxis.set_major_locator(MaxNLocator(integer=True))
 
 if args.log_scale == True:
     plt.yscale('log')
+    
+
+# nn_line = 'gH-.'
+# sc_line = 'bX:'
+# t4_line = 'cv:'
+# ag_line = 'y^-.'
+# t2_line = 'mD--'
+
+# ne_name = 'exact log'
+# nP_name = 'Pade log'
+# ag_name = 'tensorAD'
+
 
 if custom_model == False:
     plt.plot(deg3d,through3d_tr, tr_line, label=tr_name)
-plt.plot(deg3d,through3d_nn, nn_line, label= ne_name)
-if custom_model == False:
+    plt.plot(deg3d,through3d_nn, 'gH-', label= ne_name)
+# if custom_model == False:
     plt.plot(deg3d,through3d_sc, sc_line, label= sc_name)
     plt.plot(deg3d,through3d_t4, t4_line, label= t4_name)
     plt.plot(deg3d,through3d_t2, t2_line, label= t2_name)
     plt.plot(deg3d,through3d_ag, ag_line, label= ag_name)
-
+    print("through3d_sc:", through3d_sc)
+    print("through3d_t4:", through3d_t4)
     # plt.plot(deg3d,through3d_t2, 'g^--', label='MF tensor2')
     # plt.plot(deg3d,through3d_t4_ns, 'mD--', label='MF tensor4 P')
 else:
-    plt.plot(deg3d,through3d_ag, ag_line, label= ag_name)
+    plt.plot(deg3d,through3d_nn, 'gH-', label= "Halley root")
+    plt.plot(deg3d,through3d_ag, 'y^-', label= "tensorAD")
+    plt.plot(deg3d,max_iNH_Scalar_Curr_rescaled, "bX-.", label= "scalar curr.")
+    plt.plot(deg3d,max_iNH_Scalar_Ref_rescaled, "bX:", label= "scalar ref.")
+    plt.plot(deg3d,max_iNH_TensorsDeformed_rescaled, 'y^:', label= "tensor4, curr")
+    # plt.fill_between(deg3d, min_iNH_TensorsDeformed_rescaled, max_iNH_TensorsDeformed_rescaled, color='yellow', alpha=0.3)
+    plt.plot(deg3d,max_iNH_remputeAll_rescaled, 'gH:', label= "recompute a`ll")
+    plt.fill_between(deg3d, min_iNH_remputeAll_rescaled, max_iNH_remputeAll_rescaled, color='green', alpha=0.2)
+
 
 plt.xlabel('polynomial degree')
 plt.ylabel('vmult DoF / s')
@@ -541,7 +599,10 @@ leg = plt.legend(loc='lower right', ncol=1)
 fig_leg = figure(figsize=(10, 1))
 ax_leg = fig_leg.add_subplot(111)
 ax_leg.axis('off')
-legend = ax_leg.legend(*ax.get_legend_handles_labels(), loc='center', frameon=True, ncol=3)
+if custom_model == False:
+    legend = ax_leg.legend(*ax.get_legend_handles_labels(), loc='center', frameon=True, ncol=3)
+else:
+    legend = ax_leg.legend(*ax.get_legend_handles_labels(), loc='center', frameon=True, ncol=1)
 fig_leg.canvas.draw()
 bbox  = legend.get_window_extent().transformed(fig_leg.dpi_scale_trans.inverted())
 fig_leg.savefig(fig_prefix + 'legend-comparison.pdf', format='pdf', bbox_inches=bbox)

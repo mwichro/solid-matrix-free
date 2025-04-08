@@ -334,12 +334,12 @@ fig_prefix = os.path.join(os.getcwd(), '../doc/' + os.path.basename(os.path.norm
 #
 #
 
-nn_line = 'gH-.'
 tr_line = 'rs--'
+nn_line = 'bX-'
 sc_line = 'bX:'
-t4_line = 'cv:'
-ag_line = 'y^-.'
-t2_line = 'mD--'
+t4_line = 'y^:'
+ag_line = 'y^-'
+t2_line = 'mD:'
 
 tr_name = 'sparse matrix'
 
@@ -493,9 +493,9 @@ if args.log_scale == True:
     plt.yscale('log')
 
 if custom_model == False:
-    plt.plot(deg2d,through2d_nn, nn_line, label='MF none')
-    plt.plot(deg2d,through2d_tr, tr_line, label= tr_name)
+    plt.plot(deg2d,through2d_nn, nn_line, label= ne_name)
     plt.plot(deg2d,through2d_sc, sc_line, label= sc_name)
+    plt.plot(deg2d,through2d_tr, tr_line, label= tr_name)
     plt.plot(deg2d,through2d_t4, t4_line, label= t4_name)
     plt.plot(deg2d,through2d_t2, t2_line, label= t2_name)
     plt.plot(deg2d,through2d_ag, ag_line, label= ag_name)
@@ -574,13 +574,12 @@ if args.log_scale == True:
 
 
 if custom_model == False:
-    plt.plot(deg3d,through3d_tr, tr_line, label=tr_name)
-    plt.plot(deg3d,through3d_nn, 'gH-', label= ne_name)
-# if custom_model == False:
+    plt.plot(deg3d,through3d_nn, nn_line, label= ne_name)
+    plt.plot(deg3d,through3d_ag, ag_line, label= ag_name)
     plt.plot(deg3d,through3d_sc, sc_line, label= sc_name)
     plt.plot(deg3d,through3d_t4, t4_line, label= t4_name)
     plt.plot(deg3d,through3d_t2, t2_line, label= t2_name)
-    plt.plot(deg3d,through3d_ag, ag_line, label= ag_name)
+    plt.plot(deg3d,through3d_tr, tr_line, label=tr_name)
     print("through3d_scRef:", through3d_scref)
     print("through3d_sc:", through3d_sc)
     print("through3d_t4:", through3d_t4)

@@ -1,0 +1,46 @@
+-----------------------------------------------------------------------------
+--     . running in OPTIMIZED mode
+--     . running with 32 MPI processes
+--     . vectorization over 4 doubles = 256 bits (AVX), VECTORIZATION_LEVEL=2
+--     . version 1.0 (revision 8912e8c on branch main)
+--     . deal.II 9.5.0-pre (revision 182084be79 on branch master)
+-----------------------------------------------------------------------------
+
+dim   = 2
+p     = 5
+q     = 6
+cells = 90112
+dofs  = 4510720
+
+Trilinos memory = 5302 Mb
+MF cache memory = 231 Mb
+
+Average CG iter = 277
+Total CG iter = 5546
+Total CG solve = 20
+
+
++----------------------------------------------+------------+------------+
+| Total wallclock time elapsed since start     |  1.33e+03s |            |
+|                                              |            |            |
+| Section                          | no. calls |  wall time | % of total |
++----------------------------------+-----------+------------+------------+
+| Assemble linear system           |        25 |      28.3s |       2.1% |
+| Linear solver                    |        20 |  1.28e+03s |        96% |
+| Setup MF: AdditionalData         |        20 |   0.00579s |         0% |
+| Setup MF: GMG setup              |        20 |   0.00379s |         0% |
+| Setup MF: MGTransferMatrixFree   |        20 |  3.08e-05s |         0% |
+| Setup MF: MappingQEulerian       |        20 |      2.75s |      0.21% |
+| Setup MF: cache() and diagonal() |        20 |      2.22s |      0.17% |
+| Setup MF: ghost range            |        20 |    0.0348s |         0% |
+| Setup MF: interpolate_to_mg      |        20 |      0.31s |         0% |
+| Setup system                     |         1 |      1.24s |         0% |
+| vmult (MF)                       |       200 |     0.924s |         0% |
+| vmult (MF) Cell loop             |       200 |     0.887s |         0% |
+| vmult (MF) MPI                   |       200 |    0.0128s |         0% |
+| vmult (MF) RW                    |       200 |     0.356s |         0% |
+| vmult (MF) RWSF                  |       200 |      0.48s |         0% |
+| vmult (MF) zero                  |       200 |    0.0156s |         0% |
+| vmult (Trilinos)                 |       200 |      8.41s |      0.63% |
++----------------------------------+-----------+------------+------------+
+

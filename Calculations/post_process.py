@@ -343,16 +343,16 @@ t2_line = 'mD:'
 
 tr_name = 'sparse matrix'
 
-ne_name = 'exact log'
+ne_name = 'ADrecompute'
 nP_name = 'Pade log'
-ag_name = 'tensorAD'
+ag_name = 'ADstore'
 
-sc_name = 'scalar curr'
+sc_name = 'scalar'
 sr_name = 'scalar ref.'
 t4_name = 'tensor4'
 t2_name = 'tensor2'
 if custom_model == True:
-    ne_name = 'Pade root'
+    ne_name = 'ADrecompute'
     print("custom model")
 
 
@@ -586,13 +586,13 @@ if custom_model == False:
     # plt.plot(deg3d,through3d_t2, 'g^--', label='MF tensor2')
     # plt.plot(deg3d,through3d_t4_ns, 'mD--', label='MF tensor4 P')
 else:
-    plt.plot(deg3d,through3d_nn, 'gH-', label= "Halley root")
-    plt.plot(deg3d,through3d_ag, 'y^-', label= "tensorAD")
-    plt.plot(deg3d,max_iNH_Scalar_Curr_rescaled, "bX-.", label= "scalar curr.")
-    plt.plot(deg3d,max_iNH_Scalar_Ref_rescaled, "bX:", label= "scalar ref.")
+    plt.plot(deg3d,through3d_nn, 'gH-', label= "ADrecompute")
+    plt.plot(deg3d,through3d_ag, 'y^-', label= "ADstore")
+    plt.plot(deg3d,max_iNH_Scalar_Curr_rescaled, "bX-.", label= "scalar, curr.")
+    plt.plot(deg3d,max_iNH_Scalar_Ref_rescaled, "bX:", label= "scalar, ref.")
     plt.plot(deg3d,max_iNH_TensorsDeformed_rescaled, 'y^:', label= "tensor4, curr")
     # plt.fill_between(deg3d, min_iNH_TensorsDeformed_rescaled, max_iNH_TensorsDeformed_rescaled, color='yellow', alpha=0.3)
-    plt.plot(deg3d,max_iNH_remputeAll_rescaled, 'gH:', label= "recompute all")
+    plt.plot(deg3d,max_iNH_remputeAll_rescaled, 'gH:', label= "recompute, ref.")
     plt.fill_between(deg3d, min_iNH_remputeAll_rescaled, max_iNH_remputeAll_rescaled, color='green', alpha=0.2)
 
 
@@ -712,13 +712,13 @@ plt.plot(deg2d,solver2d_tr, 'rs--', label='Matrix-based solver')
 # plt.plot(deg2d,solver2d_t2, 'g^--', label='MF tensor2')
 #plt.plot(deg2d,solver2d_t4_ns, 'mD--', label='MF Solver P')  # tensor4')
 #plt.plot(deg2d,mf_gmg_2d_t4_ns,'mo--', label='MF Solver P setup')
-plt.plot(deg2d,solver2d_t4, 'cv-', label='Matrix-free solver')  # tensor4')
 plt.plot(deg2d,mf_gmg_2d_t4, 'm>-', label='Matrix-free setup')  # tensor4')
+plt.plot(deg2d,solver2d_nn, 'cv-', label='Matrix-free solver')  # tensor4')
 # plt.plot(deg2d,solver2d_t4_coarse, 'g^--', label='MF Coarse Solver')
 plt.xlabel('polynomial degree')
 plt.ylim(top=1e-3, bottom=1e-7)  # Set y-axis scale from 1e-7 to 1e-3
 plt.ylabel('wall time (s) / DoF')
-leg = plt.legend(loc='lower right', ncol=1, labelspacing=0.1)
+# leg = plt.legend(loc='lower right', ncol=1, labelspacing=0.1)
 plt.savefig(fig_prefix + 'solver2d.pdf', format='pdf', bbox_inches = 'tight')
 
 # clear
@@ -729,20 +729,30 @@ plt.ylim(top=1e-2,bottom=1e-9)
 ax.xaxis.set_major_locator(MaxNLocator(integer=True))
 plt.rcParams.update(params2)
 
-plt.plot(deg3d,assembly3d_tr, 'bp--', label='Matrix Assembly')
+plt.plot(deg3d,assembly3d_tr, 'bp--', label='Matrix assembly')
 plt.plot(deg3d,solver3d_tr, 'rs--', label='Matrix-based solver')
 # plt.plot(deg3d,solver3d_sc, 'bo--', label='MF scalar')
 # plt.plot(deg3d,solver3d_t2, 'g^--', label='MF tensor2')
 #plt.plot(deg3d,solver3d_t4_ns, 'mD--', label='MF Solver P')
 #plt.plot(deg3d,mf_gmg_3d_t4_ns,'mo--', label='MF Solver P setup')
-plt.plot(deg3d,solver3d_t4, 'cv-', label='Matrix-free solver')
 plt.plot(deg3d,mf_gmg_3d_t4, 'm>-', label='Matrix-free setup')  
+plt.plot(deg3d,solver3d_nn, 'cv-', label='Matrix-free solver')
 # plt.plot(deg3d,solver3d_t4_coarse, 'g^--', label='MF Coarse Solver')
 plt.xlabel('polynomial degree')
 plt.ylabel('wall time (s) / DoF')
 plt.ylim(top=3e-3, bottom=1e-7)  # Set y-axis scale from 1e-7 to 1e-3
-leg = plt.legend(loc='lower right', ncol=1, labelspacing=0.1)
+# leg = plt.legend(loc='lower right', ncol=1, labelspacing=0.1)
 plt.savefig(fig_prefix + 'solver3d.pdf', format='pdf', bbox_inches = 'tight')
+
+fig_leg = figure(figsize=(10, 1))
+ax_leg = fig_leg.add_subplot(111)
+ax_leg.axis('off')
+legend = ax_leg.legend(*ax.get_legend_handles_labels(), loc='center', frameon=True, ncol=2)
+fig_leg.canvas.draw()
+bbox  = legend.get_window_extent().transformed(fig_leg.dpi_scale_trans.inverted())
+fig_leg.savefig(fig_prefix + 'legend-solver.pdf', format='pdf', bbox_inches=bbox)
+
+
 
 # clear
 plt.clf()

@@ -4,7 +4,14 @@
     (*Initilization and input *)
   << AceGen`;
 dim = 3;
-SMSInitialize["neoHooke_" < > ToString[dim]<> "D_Tangent", "Language"->"C++"];
+
+(**)
+(* Using "acegen_scratch" allows ReplaceAceGenScratch.sh to find and replace all temporary variables *)
+(**)
+
+SMSInitialize["neoHooke_" < > ToString[dim]<> "D_Tangent",
+                "Language"->"C++",
+                "GlobalNames"->{"acegen_scratch", "i", "b"}];
 SMSModule
   ["tangent",
    Real
@@ -19,8 +26,8 @@ grad\[Delta] U \[RightTee] Table[SMSReal[gradDU$$[i, j]],
 
 
 (*Strain energy function *)
-\[DoubleStruckCapitalF] \[DoubleRightTee] IdentityMatrix[3] +\
-    [DoubleStruckCapitalH];
+\[DoubleStruckCapitalF] \[DoubleRightTee] IdentityMatrix[3] +
+  [DoubleStruckCapitalH];
 \[DoubleStruckCapitalC] \[DoubleRightTee] Transpose[\[DoubleStruckCapitalF]]
   . \[DoubleStruckCapitalF];
 J2 \[DoubleRightTee] Det[\[DoubleStruckCapitalC]];

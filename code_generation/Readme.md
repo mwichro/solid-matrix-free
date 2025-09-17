@@ -9,6 +9,10 @@ Short guide to generate and prepare Neo-Hookean evaluation kernels produced by A
     - adapt function headers so arguments use deal.II Tensor types instead of raw C arrays,
     - make the function templated on `Number` so it can be instantiated for `double` or SIMD number types.
 
+Note: AceGen also provides a minimal script `simpleNH.wls` that only generates the Neo‑Hookean tangent (no full residual).
+It can be run the same way as `NeoHookean.wls` and should be post‑processed and adapted 
+(scratch replacement, header/templating changes) exactly as described above when you only need the tangent.
+
 ## Generate the source
 Run AceGen (example):
 ```

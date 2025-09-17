@@ -26,13 +26,10 @@ Solution: use the provided helper script `ReplaceAceGenScratch.sh`. What it does
 
 Example usage:
 ```
-./ReplaceAceGenScratch.sh NeoHookean.cc > NeoHookean_scratch_fixed.cc
-# or inplace (if the script supports -i): ./ReplaceAceGenScratch.sh -i NeoHookean.cc
-```
+./ReplaceAceGenScratch.sh NeoHookean.cpp 
 
-Notes:
-- Verify the mapping (the script should print or log how scratch indices map to names).
-- The resulting variables are plain scalars (not arrays) so unused ones do not allocate large contiguous memory.
+```
+will produce NeoHookean.cc
 
 
 ## Templating by Number
@@ -40,30 +37,28 @@ Wrap the entire generated kernel function as a template:
 
 Before:
 ```
-void neo_hookean_eval(... /* uses double */) { ... }
+void residual(... /* uses double */) { ... }
 ```
 After:
 ```
 template <typename Number>
-void neo_hookean_eval(... /* replace double arrays with Tensor<..,Number>& */) { ... }
+void residual(... /* replace double arrays with Tensor<..,Number>& */) { ... }
 ```
 
-Benefits:
-- allows instantiation with `double` or with SIMD/vectorized number types (e.g. deal.II's `VectorizedArray<double>`),
-- together with `ReplaceAceGenScratch.sh` (which declares scratch as `Number`) this makes the kernel SIMD‑capable.
+This allows instantiation with `double` or with SIMD/vectorized number types (e.g. deal.II's `VectorizedArray<double>`),
 
 Example instantiation / call:
 ```
 using Number = double;
-neo_hookean_eval<Number>(...);
+residual<Number>(...);
 
 using Number = dealii::VectorizedArray<double>;
-neo_hookean_eval<Number>(...);   // for vectorized runs
+residual<Number>(...);   // for vectorized runs
 ```
 
 If you prefer explicit instantiation to keep the object file small, add
 ```
-template void neo_hookean_eval<double>(...); 
+template void residual<double>(...); 
 ```
 in a .cc file.
 
@@ -92,7 +87,7 @@ Add required includes near the top of the file:
 ## Build tips
 - Ensure `DIM` or `dim` is provided via template or compile-time constant consistent with AceGen output.
 - Compile with optimization flags (e.g. -O3 -march=native -ffast-math) for best SIMD performance.
-- If using vectorized `Number`, enable relevant compile flags (e.g. AVX, AVX2).
+- If using vectorized `Number`, enable relevant compile flags (e.g. -march=native).
 
 
 ## Quick checklist

@@ -3,21 +3,21 @@
 Short guide to generate and prepare Neo-Hookean evaluation kernels produced by AceGen for matrix-free finite‑element evaluation (large strain).
 
 ## Overview
-1. Use the AceGen script `NeoHookean.wls` to generate C/C++ source for element/point evaluation kernels.  
+1. Use the AceGen script `CodeGeneration.wls` to generate C/C++ source for element/point evaluation kernels.  
 2. The generated source needs three small modifications to be efficient and usable in a deal.II-based, vectorized, matrix‑free code:
     - replace AceGen "scratch" arrays with named scalar variables (to avoid large unused arrays and to enable compiler optimizations),
     - adapt function headers so arguments use deal.II Tensor types instead of raw C arrays,
     - make the function templated on `Number` so it can be instantiated for `double` or SIMD number types.
 
 Note: AceGen also provides a minimal script `simpleNH.wls` that only generates the Neo‑Hookean tangent (no full residual).
-It can be run the same way as `NeoHookean.wls` and should be post‑processed and adapted 
+It can be run the same way as `CodeGeneration.wls` and should be post‑processed and adapted 
 (scratch replacement, header/templating changes) exactly as described above when you only need the tangent.
 
 ## Generate the source
 Run AceGen (example):
 ```
 # Open with Mathematica and run:
-NeoHookean.wls   # produces NeoHookean.c / NeoHookean.cc (AceGen output)
+CodeGeneration.wls   # produces NeoHookean.c / NeoHookean.cc (AceGen output)
 ```
 
 ## Post-process AceGen scratch data
@@ -95,7 +95,7 @@ Add required includes near the top of the file:
 
 
 ## Quick checklist
-- [ ] Run NeoHookean.wls → get .cc/.c file
+- [ ] Run CodeGeneration.wls → get .cc/.c file
 - [ ] Run ReplaceAceGenScratch.sh → scalar scratch variables inserted
 - [ ] Edit headers: raw C arrays → Tensor<..,Number> &
 - [ ] Make function template<typename Number>

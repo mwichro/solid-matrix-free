@@ -99,16 +99,17 @@ J2\[DoubleRightTee]Det[\[DoubleStruckCapitalC]];
 (* neoHookean with volumetric-isochoric split *)
 If[ model=="neoHookeSplit",
 energy:=(
-\[Kappa]=\[Lambda]+2\[Mu]/3;
 \[DoubleStruckCapitalC]temp\[DoubleRightTee]Transpose[\[DoubleStruckCapitalF]] . \[DoubleStruckCapitalF];
 SMSFreeze[\[DoubleStruckCapitalC]V,\[DoubleStruckCapitalC]temp//Tensor2Vector];
 \[DoubleStruckCapitalC]\[DoubleRightTee](\[DoubleStruckCapitalC]V//Vector2Tensor);
 J2 \[RightTee]Det[\[DoubleStruckCapitalC]];
 I3 \[DoubleRightTee]J2;
 If [dim==3, 
+\[Kappa]=\[Lambda]+2\[Mu]/3;
 rtI3\[RightTee]SMSCbrt[I3];
 SMSDefineDerivative[rtI3,I3,1/3  rtI3/I3]
 ,
+\[Kappa]=\[Lambda]+\[Mu];
 rtI3\[RightTee]SMSSqrtF[I3];
 SMSDefineDerivative[rtI3,I3,1/2  rtI3/I3]
 ];

@@ -61,8 +61,28 @@
 int
 main(int argc, char *argv[])
 {
+#ifdef WITH_LIKWID
+  // pcout << "LIKWID_MARKER_INIT" << std::endl;
+  LIKWID_MARKER_INIT;
+#endif
+
   using namespace dealii;
   using namespace Cook_Membrane;
+
+
+#ifdef __x86_64
+
+  // on x86-64:
+  // change mode for rounding: denormals are flushed to zero to avoid computing
+  // on denormals which can slow down computations a lot.
+#  define MXCSR_DAZ (1 << 6)  /* Enable denormals are zero mode */
+#  define MXCSR_FTZ (1 << 15) /* Enable flush to zero mode */
+
+  unsigned int mxcsr = __builtin_ia32_stmxcsr();
+  mxcsr |= MXCSR_DAZ | MXCSR_FTZ;
+  __builtin_ia32_ldmxcsr(mxcsr);
+
+#endif
 
   try
     {
@@ -129,6 +149,9 @@ main(int argc, char *argv[])
             }
           }
       }
+#ifdef WITH_LIKWID
+      LIKWID_MARKER_CLOSE;
+#endif
     }
   catch (std::exception &exc)
     {

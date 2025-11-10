@@ -136,8 +136,8 @@ copy_trilinos(LinearAlgebra::distributed::Vector<Number> &dst,
   IndexSet combined_set = dst.get_partitioner()->locally_owned_range();
   combined_set.add_indices(dst.get_partitioner()->ghost_indices());
   LinearAlgebra::ReadWriteVector<Number> rw_vector(combined_set);
-  rw_vector.import(trilinos_vec, VectorOperation::insert);
-  dst.import(rw_vector, VectorOperation::insert);
+  rw_vector.import_elements(trilinos_vec, VectorOperation::insert);
+  dst.import_elements(rw_vector, VectorOperation::insert);
 
   if (dst.has_ghost_elements() || trilinos_vec.has_ghost_elements())
     dst.update_ghost_values();
@@ -1193,10 +1193,6 @@ namespace Cook_Membrane
   void
   Solid<dim, degree, n_q_points_1d, NumberType>::run()
   {
-#ifdef WITH_LIKWID
-    pcout << "LIKWID_MARKER_INIT" << std::endl;
-    LIKWID_MARKER_INIT;
-#endif
     make_grid();
     system_setup();
     output_results();
@@ -1234,10 +1230,6 @@ namespace Cook_Membrane
               << (total_n_cg_iterations / total_n_cg_solve) << std::endl
               << "Total CG iter = " << total_n_cg_iterations << std::endl
               << "Total CG solve = " << total_n_cg_solve << std::endl;
-#ifdef WITH_LIKWID
-    pcout << "LIKWID_MARKER_CLOSE" << std::endl;
-    LIKWID_MARKER_CLOSE;
-#endif
   }
 
 
@@ -2807,7 +2799,7 @@ namespace Cook_Membrane
 
     mf_nh_operator.compute_resudual(system_rhs);
     system_rhs.compress(VectorOperation::add);
-    system_rhs *= -1;
+    system_rhs *= -1.;
 
 
     for (const auto &cell : dof_handler.active_cell_iterators())
